@@ -1,6 +1,6 @@
 # Comprehensive CSV Schema Analysis — SupeRR Selector Season 2
 
-**Scope:** Exhaustive audit of all 6 CSV files, 77 distinct columns, data types, null profiles, uniqueness, key roles, and domain-specific analytical utility.
+**Scope:** Exhaustive audit of all 6 CSV files, 77 distinct columns, data types, null profiles, uniqueness, key roles, domain-specific analytical utility, and Phase 1.5 empirical patches.
 
 ---
 
@@ -12,9 +12,14 @@
 | Column Name | Stored / Logical Type | Example Values | Missing Values (%) | Unique Count | Key Classification | Analytical Utility |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | `comp_id` | `INTEGER` | `1358`, `1715`, `3395` | 0 (0.0%) | 141 | Primary Key | Join key to `matches`, `teams`, `competition_team_player_mapping`. |
-| `comp_name` | `STRING` | `'IPL 2022'`, `'ICC Men's T20 World Cup 2024'` | 0 (0.0%) | 141 | Alternate Key | Tournament classification; separates IPL franchise matches from T20 Internationals. |
-| `match_format` | `STRING` | `'T20'`, `'T20I'` | 0 (0.0%) | 2 | Attribute | Segmenting domestic league (`T20`) vs international (`T20I`) contexts. |
+| `comp_name` | `STRING` | `'IPL 2022'`, `'ICC Men's T20 World Cup 2024'` | 0 (0.0%) | 141 | Alternate Key | Tournament classification; separates IPL franchise matches from T20 Internationals and Emerging Cups. |
+| `match_format` | `STRING` | `'T20'`, `'T20I'` | 0 (0.0%) | 2 | Attribute | Segmenting domestic league/associate (`T20`) vs international (`T20I`) contexts. |
 | `season` | `STRING` | `'2022'`, `'2023'`, `'2024'`, `'2025'`, `'2026'` | 0 (0.0%) | 8 | Attribute | Longitudinal temporal weighting, career baselines, and cross-season consistency checks. |
+
+### Competition Stratification Tiers (Phase 1.5 Update)
+- **Tier 1 (`IPL`):** `comp_id in [1358, 1715, 2193, 2725, 3298]` (371 matches).
+- **Tier 2 (`T20I_FullMember`):** T20I matches between ICC Full Members (`India, Australia, England, South Africa, New Zealand, West Indies, Pakistan, Sri Lanka, Bangladesh, Afghanistan, Ireland, Zimbabwe`).
+- **Tier 3 (`T20_Associate_Emerging`):** T20I matches involving Associate members and emerging team tournaments (`comp_id in [2670, 3289]`).
 
 ---
 
@@ -41,8 +46,8 @@
 | `match_id` | `INTEGER` | `13511`, `14112`, `40725` | 0 (0.0%) | 883 | Primary Key | Transactional join key connecting deliveries and playing XIs. |
 | `comp_id` | `INTEGER` | `1331`, `1358`, `2193` | 0 (0.0%) | 138 | Foreign Key -> `competitions.comp_id` | Links match to competition format and season. |
 | `match_number` | `INTEGER` | `1`, `2`, `74` | 0 (0.0%) | 75 | Attribute | Schedule order within competition. |
-| `match_date` | `DATE (YYYY-MM-DD)` | `'2022-01-22'`, `'2024-05-26'` | 0 (0.0%) | 686 | Attribute | Chronological ordering, recency weighting, and temporal splits. |
-| `stage` | `STRING` | `'League'`, `'Qualifier'`, `'Eliminator'`, `'Final'` | 0 (0.0%) | 7 | Attribute | **Crucial Pressure Variable:** Knockout/Playoff matches carry elevated macro-pressure. |
+| `match_date` | `DATE (YYYY-MM-DD)` | `'2022-01-22'`, `'2024-05-26'` | 0 (0.0%) | 686 | Attribute | Chronological ordering, recency weighting, and dynamic Elo progression. |
+| `stage` | `STRING` | `'League'`, `'Qualifier'`, `'Eliminator'`, `'Final'` | 0 (0.0%) | 7 | Attribute | **Crucial Pressure Variable:** Knockout/Playoff matches carry elevated macro-pressure ($\kappa_{\text{stage}} = 1.25$). |
 | `venue_id` | `INTEGER` | `54`, `8`, `44` | 0 (0.0%) | 98 | Attribute | Pitch condition and par score grouping. |
 | `venue_country` | `STRING` | `'India'`, `'Australia'`, `'West Indies'` | 0 (0.0%) | 17 | Attribute | Geographic condition context (subcontinent vs pace/bounce). |
 | `home_team_id` | `INTEGER` | `28`, `18`, `20` | 0 (0.0%) | 36 | Foreign Key -> `teams.team_id` | Identifies home side. |
@@ -59,7 +64,7 @@
 | `revised_target` | `INTEGER` | `143`, `56`, `91` | 860 (97.4%) | 23 | Attribute | **Crucial Pressure Variable:** DLS target required for 2nd innings pressure calculations. |
 | `knock_out` | `BOOLEAN / INT` | `0`, `1` | 0 (0.0%) | 2 | Attribute | **Binary macro-pressure flag:** 1 indicates sudden-death knockout match. |
 | `win_team_id` | `INTEGER` | `28`, `22`, `18` | 41 (4.6%) | 36 | Foreign Key -> `teams.team_id` | Match outcome (null in 41 abandoned/no-result/tied matches). |
-| `result` | `STRING` | `'England Won by 1 Run'`, `'Match Abandoned'` | 0 (0.0%) | 670 | Attribute | Victory margin, chase success, and match finality. |
+| `result` | `STRING` | `'England Won by 1 Run'`, `'Match Abandoned'` | 0 (0.0%) | 670 | Attribute | Victory margin, chase success, and match finality. Used for Match-Margin Anchoring. |
 
 ---
 
@@ -107,7 +112,7 @@
 | Column Name | Stored / Logical Type | Example Values | Missing Values (%) | Unique Count | Key Classification | Analytical Utility |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | `match_id` | `INTEGER` | `13511`, `14112` | 0 (0.0%) | 867 | Foreign Key -> `matches.match_id` | Core match event link. |
-| `innings` | `INTEGER` | `1`, `2`, `3`, `4` | 0 (0.0%) | 4 | Attribute | 1=First innings, 2=Chase innings, 3/4=Super Over. |
+| `innings` | `INTEGER` | `1`, `2`, `3`, `4` | 0 (0.0%) | 4 | Attribute | 1=First innings, 2=Chase innings, 3/4=Super Over ($\kappa_{\text{stage}} = 1.35$). |
 | `overid` | `INTEGER` | `1`, `2`, `20` | 0 (0.0%) | 20 | Attribute | Over index (1-indexed: 1 = 1st over, 20 = 20th over). |
 | `over_ball_num` | `INTEGER` | `1`, `2`, `6`, `13` | 0 (0.0%) | 13 | Attribute | Delivery count within over (exceeds 6 on wides/no-balls). |
 | `innings_ball_num` | `INTEGER` | `1`, `2`, `120`, `136` | 0 (0.0%) | 136 | Attribute | Sequential delivery counter across entire innings. |
@@ -127,31 +132,35 @@
 | `is_six` | `BOOLEAN` | `false`, `true` | 0 (0.0%) | 2 | Attribute | Boundary 6 flag. |
 | `is_wicket` | `BOOLEAN` | `false`, `true` | 0 (0.0%) | 2 | Attribute | Wicket fall indicator (10,881 true). |
 | `dismissal_type_id` | `INTEGER` | `1`, `2`, `5` | 190,118 (94.6%) | 8 | Attribute | Numeric dismissal category code. |
-| `dismissal_type` | `STRING` | `'Bowled'`, `'Caught'`, `'RunOut'` | 190,118 (94.6%) | 9 | Attribute | **Wicket classification:** Used to credit bowler vs fielding. |
+| `dismissal_type` | `STRING` | `'Bowled'`, `'Caught'`, `'RunOut'` | 190,118 (94.6%) | 9 | Attribute | **Wicket classification:** Used to credit bowler vs fielding. (Bowler credited only on Bowled, Caught, LBW, Stump, Hit Wicket). |
 | `dismissed_player_id`| `INTEGER` | `1187`, `6273` | 190,107 (94.6%) | 814 | Foreign Key -> Player entity | Player dismissed. *(Note: 12 rows have ID populated but is_wicket=false indicating Retired Hurt).* |
-| `extras_type` | `STRING` | `'None'`, `'wide'`, `'legbyes'`, `'Overstep'`| 0 (0.0%) | 7 | Attribute | Extra category. |
-| `extras1_runs` | `INTEGER` | `1`, `2`, `3`, `4`, `5`, `6`, `7` | 0 (0.0%) | 7 | Attribute | **CRITICAL FORENSIC DISCOVERY:** This column is a CATEGORICAL ENUM CODE for `extras_type`, NOT runs! (1=Overstep, 2=wide, 3=legbyes, 4=byes, 5=other, 6=None, 7=Penalty). |
-| `extras_2_runs` | `INTEGER` | `0`, `1`, `4` | 0 (0.0%) | 3 | Attribute | Additional extra runs recorded in rare no-ball/overstep instances (36 rows non-zero). |
+| `extras_type` | `STRING` | `'None'`, `'wide'`, `'legbyes'`, `'Overstep'`, `'other'`, `'byes'`, `'Penalty'`| 0 (0.0%) | 7 | Attribute | Extra category. **Crucial:** `'other'` (264 rows) = Non-Overstep No-Balls. `'Penalty'` (1 row) = +5 team runs under MCC Law 41/42. |
+| `extras1_runs` | `INTEGER` | `1`, `2`, `3`, `4`, `5`, `6`, `7` | 0 (0.0%) | 7 | Attribute | **CATEGORICAL ENUM CODE for `extras_type`, NOT runs!** (1=Overstep, 2=wide, 3=legbyes, 4=byes, 5=other, 6=None, 7=Penalty). |
+| `extras_2_runs` | `INTEGER` | `0`, `1`, `4` | 0 (0.0%) | 3 | Attribute | Additional extra runs recorded in rare no-ball instances (36 rows non-zero). |
 | `pace_or_spin` | `STRING` | `'Pace'`, `'Spin'` | 0 (0.0%) | 2 | Attribute | Macro bowling classification. |
 | `bowl_speed` | `FLOAT` | `0.0`, `138.4`, `145.2` | 0 (0.0%) | 1033 | Attribute | Ball speed in km/h (0 when unmeasured or spin). |
-| `stroke` | `STRING` | `'Cover Drive'`, `'Pull'`, `'Flick'` | 12 (0.0%) | 31 | Attribute | Batter shot selection. |
-| `delivery_style` | `STRING` | `'Inswing'`, `'Yorker'`, `'Bouncer'` | 7 (0.0%) | 35 | Attribute | Bowler delivery trajectory/style. |
+| `stroke` | `STRING` | `'Cover Drive'`, `'Pull'`, `'Flick'` | 12 (0.0%) | 31 | Attribute | Batter shot selection (biomechanical/tactical profiling). |
+| `delivery_style` | `STRING` | `'Inswing'`, `'Yorker'`, `'Bouncer'` | 7 (0.0%) | 35 | Attribute | Bowler delivery trajectory/style (Yorker, Bouncer, Slower ball, Inswing/Outswing). |
 | `over_or_around` | `STRING` | `'Over'`, `'Around'` | 407 (0.2%) | 2 | Attribute | Bowler angle around the wicket. |
 | `on_or_off` | `STRING` | `'Off-side'`, `'On-side'` | 0 (0.0%) | 2 | Attribute | Direction of delivery / shot. |
 | `delivery_ist_time` | `TIMESTAMP` | `'2022-01-22 20:15:32 UTC'` | 0 (0.0%) | >10000 | Attribute | Exact delivery timestamp. |
 
 ---
 
-## 7. Forensic Discovery Highlights
-1. **The `extras1_runs` Misnomer:**  
-   The column name `extras1_runs` strongly suggests numeric runs, but empirical frequency analysis proved a 1-to-1 exact mapping to `extras_type`:
-   - `6` = `None` (189,167 rows)
-   - `2` = `wide` (7,714 rows)
-   - `3` = `legbyes` (2,748 rows)
-   - `1` = `Overstep` (576 rows)
-   - `4` = `byes` (529 rows)
-   - `5` = `other` (264 rows)
-   - `7` = `Penalty` (1 row)  
-   *Correction Rule:* Never sum `extras1_runs` as run values. Summing it would erroneously add 6 runs to every standard delivery!
-2. **Missing Bye/Leg-Bye Magnitudes:**  
-   The dataset identifies that byes or legbyes occurred (`extras_type = 'legbyes'` / `'byes'`), but records `runs = 0` and `extras_2_runs = 0`. As a result, 4-leg-byes cannot be distinguished from 1-leg-bye from delivery rows alone.
+## 7. Engineered Pre-Delivery State Columns Specification (Phase 2)
+In `clean_deliveries.csv`, each delivery is augmented with pre-delivery state variables strictly preventing temporal leakage:
+- `pre_team_score`: Score before delivery $t$.
+- `post_team_score`: `pre_team_score + team_runs_on_ball`.
+- `pre_wickets_lost`: Wickets lost before delivery $t$.
+- `pre_wickets_in_hand`: $10 - \text{pre\_wickets\_lost}$.
+- `pre_legal_balls_bowled`: Legal deliveries completed prior to delivery $t$.
+- `pre_balls_remaining`: $\max(1, \text{max\_legal\_balls} - \text{pre\_legal\_balls\_bowled})$.
+- `pre_partnership_runs`, `pre_partnership_balls`: Cumulative active partnership stats.
+- `pre_consecutive_dots`: Active streak of consecutive dot balls immediately preceding delivery $t$.
+- `pre_striker_runs`, `pre_striker_balls`: Cumulative innings performance of the current striker prior to delivery $t$.
+- `target_score`: Fixed target (Innings 2 only).
+- `pre_runs_needed`: $\max(0, \text{target\_score} - \text{pre\_team\_score})$.
+- `pre_crr`: Current run rate prior to ball $t$.
+- `pre_rrr`: Required run rate prior to ball $t$.
+- `comp_tier`: Tier 1 (`IPL`), Tier 2 (`T20I_FullMember`), Tier 3 (`T20_Associate_Emerging`).
+- `opposition_quality_weight`: Pre-match Elo-derived quality weight $\omega_t \in [0.60, 1.35]$.

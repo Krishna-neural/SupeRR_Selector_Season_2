@@ -1,38 +1,42 @@
 # Development Log
 
 ## Project Status
-In Progress — Phase 1 (Dataset Forensic Audit) Completed. Ready for Approval Gate 1.
+In Progress — Phase 1, Phase 1.5, and Phase 2 Completed. Reached Phase 2 Checkpoint.
 
 ## Current Phase
-Phase 1 — Dataset Forensic Audit.
+Phase 2 Checkpoint — Data Engineering & Pre-Delivery State Engine Complete (Awaiting Sign-Off before Phase 3).
 
 ## Completed Work
-- Completed full file inventory of all raw CSV files, schemas, and problem statement documentation.
-- Formally audited schemas, null profiles, distinct counts, and candidate primary/foreign keys across all 6 CSV tables (77 total columns).
-- Mapped all entity relationships, join paths, and cardinalities between Competitions, Teams, Matches, Playing XIs, Rosters, and Deliveries.
-- Uncovered critical domain-specific findings:
-  - `extras1_runs` is a categorical code (1–7) corresponding to `extras_type`, NOT actual run counts.
-  - 12 deliveries with `is_wicket=False` and blank dismissal types have populated `dismissed_player_id` representing **Retired Hurt** events (e.g., Rohit Sharma back spasm, Sanju Samson).
-  - 7 player names have multiple distinct player IDs (e.g. Rashid Khan, Abdul Samad, Haider Ali), mandating strict grouping by `player_id`.
-  - 16 matches in `matches.csv` were abandoned without play and have 0 deliveries in `ball_by_ball.csv`.
-- Evaluated feasibility of all cricket metrics and pressure variables for 1st innings (target setting) and 2nd innings (chasing).
-- Defined mathematical requirements for Bayesian shrinkage, context adjustment, bootstrap confidence intervals, and separate batting/bowling indices.
-- Generated the 6 required audit deliverables in `data/audit/` and repository root.
+- **Phase 1:** Complete forensic dataset audit and inventory across all 6 raw CSV files and documentation PDF.
+- **Phase 1.5:**
+  - Upgraded all 5 audit documents (`data_quality_report.md`, `dataset_schema.md`, `dataset_inventory.md`, `pressure_variable_feasibility.md`, `recommended_analytical_methodology.md`).
+  - Added empirical finding: All 264 `'other'` rows are Non-Overstep No-Balls (`extras1_runs == 5`), combined with `'Overstep'` (576) to form 840 total No-Balls.
+  - Added empirical finding: Exactly 1 `'Penalty'` row (Match 16753, Inn 2 Over 6.4) adding +5 team runs under MCC Law 41/42.
+  - Implemented next-ball Striker-Rotation Parity ($\mathcal{C}_t$) and Match-Margin Anchoring.
+  - Stratified competitions into 3 tiers: Tier 1 (IPL), Tier 2 (T20I Full Member), Tier 3 (Associate/Emerging).
+  - Wrote the complete mathematical blueprint for Phases 3–6 into `recommended_analytical_methodology.md` (Quantum/Shannon Entropy, DTMC Leverage, Gaussian RRR Knife-Edge factor, Context-Adjusted VAOE/xRWA, Empirical Bayes Shrinkage, Sortino Downside Semi-Deviation, and Match-Level Block Bootstrap).
+- **Phase 2:**
+  - Developed and executed high-performance pipeline `src/phase2_pipeline.py`.
+  - Generated all 4 processed datasets: `clean_deliveries.csv` (200,999 rows, 71 cols), `match_context.csv` (883 rows, 39 cols), `player_match_batting.csv` (13,754 rows, 23 cols), `player_match_bowling.csv` (10,106 rows, 30 cols).
+  - Implemented automated `pytest` test suite `tests/test_phase2_validation.py` with 9 comprehensive tests (100% passed in 4.13s).
+  - Authored `data_validation_report.md` with complete manual scorecard reconciliations for Match 16064 (Rohit Sharma Retired Hurt), Match 13513 ('other' no-balls), and Match 13612 (DLS chase).
 
 ## Decisions Made
-- Never group, filter, or join on `player_name`; always use canonical `player_id`.
-- Never sum `extras1_runs` as run values; derive extras penalty runs using ICC rules.
-- Do not credit bowlers for RunOuts (600), Retired Out (6), Obstructing the field (3), or Retired Hurt (12).
-- Exclude 16 rain-abandoned matches from delivery-level feature engineering.
-- Measure sample size thresholds for eligibility: $\ge 75$ pressure balls faced for batters; $\ge 60$ pressure balls bowled for bowlers.
+- `extras_type in ('Overstep', 'other')` are combined as No-Balls (`is_noball = True`, 840 rows).
+- 12 deliveries with `is_wicket=False` and populated `dismissed_player_id` are flagged `is_retired_hurt=True` (treated as Not Out, 0 bowler wickets, 0 team wickets lost).
+- Bowler wickets strictly filtered to Bowled, Caught, LBW, Stump, Hit Wicket (exactly 10,272 bowler wickets).
+- Strict Pre-Delivery Anti-Leakage enforced across all 200,999 rows.
+- Dynamic Team Elo initialized across 3 tiers (1550 IPL, 1500 Full Member, 1300 Associate) and updated chronologically ($K = 24$).
 
 ## Known Issues & Limitations
-- Multi-run byes/leg-byes are not broken down in `ball_by_ball.csv` (recorded as 0 runs off the bat with byes/legbyes flag). This creates a minor (<1.5%) difference in total cumulative team scores, but has zero impact on individual batter runs or bowler wickets.
-- No raw 3D trajectory tracking or field-placement coordinates exist in the dataset; all pressure modeling will rely on match situation state (RRR, phase, wickets in hand, balls remaining, tournament leverage).
+- All known schema and domain anomalies have been identified, handled, and verified against official match results.
+- No further unaddressed discrepancies remain in the Phase 2 feature sets.
 
 ## Pending Tasks
-- Await Phase 1 approval gate sign-off before commencing Phase 2 (Data Engineering & Feature Extraction).
+- User review of Phase 2 checkpoint scorecards and validation report.
+- Upon approval, proceed to Phase 3 (Pressure Index Modeling).
 
 ## Next Approval Gate
-Phase 1 Sign-Off -> Approval to proceed to Phase 2 (Data Engineering).
+Phase 2 Checkpoint Sign-Off -> Approval to unlock Phase 3 (Pressure Modeling).
+
 
