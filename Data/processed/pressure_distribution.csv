@@ -1,0 +1,14 @@
+stratum,category,deliveries,pct_total,mean_pressure,median_pressure,iqr_pressure,rpo,wicket_rate_pct,dot_pct
+Pressure Category,Low,80378,39.99,36.27,41.69,28.19,9.07,5.79,34.41
+Pressure Category,Moderate,60308,30.0,60.64,59.97,2.87,8.67,4.86,35.99
+Pressure Category,High,40207,20.0,73.56,73.17,9.55,8.36,5.38,38.25
+Pressure Category,Extreme,20106,10.0,89.44,88.15,6.2,8.85,5.65,34.47
+Innings,Innings 1,105727,52.6,58.58,59.64,8.26,8.87,5.33,34.99
+Innings,Innings 2,95234,47.38,53.88,58.35,51.7,8.7,5.5,36.39
+Innings,Super Over,38,0.02,98.0,98.0,0.0,9.09,34.21,42.11
+Match Phase,Powerplay (Overs 1-6),64046,31.86,61.77,60.48,16.13,8.56,4.49,45.05
+Match Phase,Middle (Overs 7-15),92499,46.02,55.77,58.62,22.04,8.29,4.74,31.61
+Match Phase,Death (Overs 16-20),44454,22.12,49.79,57.67,36.1,10.19,8.13,30.54
+Competition Tier,Tier 1 (IPL),87687,43.63,57.61,59.82,20.05,9.24,5.08,33.98
+Competition Tier,Tier 2 (T20I_FullMember),94377,46.95,55.32,59.28,21.43,8.56,5.65,36.58
+Competition Tier,Tier 3 (T20_Associate_Emerging),18935,9.42,55.71,59.15,24.46,7.82,5.74,38.85
