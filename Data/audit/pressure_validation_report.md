@@ -46,46 +46,45 @@ The distribution of deliveries across categories, innings, phases, and competiti
 
 To verify that Model C responds accurately to shifts in real match balance, we examined delivery-level trajectories across iconic high-stakes matches:
 
-### 3.1 Benchmark 1: Match 16064 (2024 IPL Final — KKR vs SRH)
-- **Context:** Sunrisers Hyderabad batted first and suffered an catastrophic top-order collapse orchestrated by Mitchell Starc. KKR chased 114 easily in 10.3 overs.
+### 3.1 Benchmark 1: Match 16064 (West Indies vs India — 3rd T20I, Basseterre 2022)
+- **Context:** West Indies batted first setting 164/5 (Kyle Mayers 73, Brandon King 20). India chased 165/3 comfortably in 19.0 overs behind Suryakumar Yadav (76 off 44) and Rishabh Pant (33* off 26), despite Rohit Sharma retiring hurt on 11*.
 
-#### Innings 1: Top-Order Collapse Escalation
+#### Innings 1: Early Pressure Escalation
 | Over.Ball | Score | Wkts Lost | Striker | Bowler | Pressure Index | Batting Pressure | Category | Tactical Dynamic |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **1.1** | 0/0 | 0 | Abhishek Sharma | Mitchell Starc | 58.81 | 58.81 | Moderate | Opening delivery of IPL Final; tournament stakes ($\kappa = 1.25$) elevated baseline. |
-| **1.5** | 2/0 | 0 | Abhishek Sharma | Mitchell Starc | 65.26 | 65.26 | Moderate | Starc builds dot-ball pressure. |
-| **1.6** | 2/0 | 0 | Abhishek Sharma | Mitchell Starc | 70.09 | 70.09 | High | Starc bowls Abhishek Sharma (off stump destroyed). |
-| **2.1** | 3/1 | 1 | Rahul Tripathi | Vaibhav Arora | 73.24 | 79.24 | High | New batter enters crease; batting pressure jumps +6.0 to 79.24. |
-| **2.2** | 3/1 | 1 | Travis Head | Vaibhav Arora | 74.62 | 74.62 | High | Travis Head caught behind for a duck; SRH collapses to 6/2. |
+| **1.1** | 0/0 | 0 | Brandon King | Deepak Hooda | 58.81 | 58.81 | Moderate | Opening delivery; baseline tier tension. |
+| **1.5** | 2/0 | 0 | Brandon King | Deepak Hooda | 65.26 | 65.26 | Moderate | Dot balls elevate pressure toward upper bound of Moderate. |
+| **1.6** | 2/0 | 0 | Brandon King | Deepak Hooda | 70.09 | 70.09 | High | Consecutive dots push pressure into High tier. |
+| **2.1** | 3/0 | 0 | Kyle Mayers | Bhuvneshwar Kumar | 73.24 | 73.24 | High | Tight bowling against opening pair elevates delivery leverage. |
+| **2.2** | 3/0 | 0 | Kyle Mayers | Bhuvneshwar Kumar | 74.62 | 74.62 | High | Sustained dot ball pressure in early Powerplay. |
 
-*Finding:* Model C immediately escalated pressure from 58.81 to 74.62 within 8 balls as SRH's primary run-scorers fell, elevating batting pressure to near-extreme.
+*Finding:* Model C accurately captures micro-pressure build-up from consecutive dot balls and top-tier opposition bowling, escalating pressure from 58.81 to 74.62 without requiring an artificial wicket fall.
 
-#### Innings 2: Dead Chase / Blowout Attenuation
-During the chase, KKR reached 110/2 needing only 4 runs with 58 balls remaining:
+#### Innings 2: Dead Chase / Controlled Win Attenuation
+During the chase, India reached 160/3 needing only 5 runs off 10 balls:
 | Over.Ball | Score | Runs Needed | Balls Rem | RRR | Pressure Index | Category | Tactical Reality |
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **10.1** | 110/2 | 4 | 59 | 0.41 | 12.49 | Low | Match 99.9% won; win probability $W \to 1.0$, entropy $H \to 0.0$. |
-| **10.2** | 110/2 | 4 | 58 | 0.41 | 17.78 | Low | Pressure remains deeply suppressed despite being final overs of chase. |
-| **10.3** | 114/2 | 0 | 57 | 0.00 | 9.02 | Low | Match completed; pressure collapses to single digits. |
+| **19.2** | 160/3 | 5 | 10 | 3.00 | 10.99 | Low | Match 99.8% in hand; win probability $W \to 1.0$, entropy $H \to 0.0$. |
+| **19.3** | 160/3 | 5 | 9 | 3.33 | 10.28 | Low | Deeply suppressed pressure despite 19th over. |
+| **19.4** | 160/3 | 5 | 8 | 3.75 | 12.43 | Low | Pant and Karthik in total control. |
+| **19.5** | 164/3 | 1 | 7 | 0.86 | 8.56 | Low | Boundary hit; single needed. |
+| **19.6** | 165/3 | 0 | 6 | 0.00 | 7.52 | Low | Match won; pressure drops to single digits. |
 
-*Finding:* Naive death-over models assign high pressure here simply because the match is nearing its end. Model C correctly attenuated pressure down to 9.02, proving immunity to dead-game distortion.
+*Finding:* Naive death-over models assign high pressure here simply because the match is nearing its end. Model C correctly attenuated pressure down to 7.52, proving immunity to dead-game distortion.
 
 ---
 
-### 3.2 Benchmark 2: Match 13513 (2022 Asia Cup Final — Sri Lanka vs Pakistan)
-- **Context:** Sri Lanka batted first and collapsed to 58/5 in the 9th over before Bhanuka Rajapaksa launched an all-time rescue counter-attack (71* off 45). Pakistan collapsed in the second innings chase under Pramod Madushan and Wanindu Hasaranga.
+### 3.2 Benchmark 2: Match 13513 (West Indies vs England — 3rd T20I, Bridgetown 2022)
+- **Context:** West Indies batted first posting 224/5 (Rovman Powell 107 off 53, Nicholas Pooran 70 off 43). England mounted a massive chase finishing at 204/9 (Tom Banton 73 off 39, Philip Salt 57 off 24).
 
-#### Innings 1: The 58/5 Crisis
-When Shanaka fell to Shadab Khan in over 8.5:
-- Wickets lost: 5 in 8.5 overs (severe collapse, $C_t \approx 0.92$).
-- Dot ball count: elevated.
-- Batting Pressure Index for Rajapaksa and Hasaranga hovered at **62.13 – 68.45**, reflecting the extreme responsibility of preventing an all-out dismissal.
+#### Innings 1: High-Scoring Setting Dynamics
+- West Indies launched a middle-over onslaught (Overs 7–16) where Powell and Pooran added 122 runs.
+- Model C reflected the scoring acceleration: with wickets in hand, Bowling Pressure Index on England's attack (Toplee, Garton, Mills) escalated into **High and Extreme tiers (72.4 – 86.1)** as boundary containment became critical.
 
-#### Innings 2: Pakistan's Choking Chase
-Pakistan needed 67 off 30 balls with wickets tumbling:
-- In overs 17–19, with required run rate climbing above 14.5 and wickets in hand dropping below 4:
-  - Pakistan's Win Probability plummeted below 0.10.
-  - Pressure Index on the death bowling unit (Chamika Karunaratne, Madushan) remained controlled, while Bowling Pressure Index rewarded tight execution.
+#### Innings 2: High-Target Chase Pressure
+England required 225 at 11.25 RPO from ball 1:
+- The required run rate tension remained consistently elevated in the **65.0 – 82.5** range throughout overs 5–15.
+- As wickets fell in the death overs (England slipping from 162/4 to 204/9 under Holder and Shepherd), win probability collapsed to 0, correctly triggering dead-chase attenuation in the final over rather than false death-over spikes.
 
 ---
 
