@@ -52,6 +52,13 @@ Thumbs.db
 *.swp
 *.swo
 
+# Scratch / temporary scripts
+scratch/
+
+.vscode/
+*.swp
+*.swo
+
 # Large data files / outputs (optional to uncomment if data is too large for git)
 # data/raw/*
 # !data/raw/.gitkeep
