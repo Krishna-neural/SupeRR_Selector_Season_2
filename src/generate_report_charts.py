@@ -492,7 +492,7 @@ def plot_fig7_pressure_vs_baseline_quadrant(bat, bowl, out_dir):
         "Sai Sudharsan": (1.5, -3.2),
         "Virat Kohli": (1.5, 2.2),
         "Kusal Mendis": (1.5, -2.8),
-        "Yashasvi Jaiswal": (1.5, 2.2),
+        "Yashasvi Jaiswal": (-15.0, -0.5),
         "Mohammad Rizwan": (1.5, -2.8),
     }
 

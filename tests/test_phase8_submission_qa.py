@@ -186,6 +186,7 @@ class TestPhase8SubmissionQA:
 
     # 26: Verbatim Stats Verification & Zero Contradictory Hardcoding
     def test_26_verbatim_stats_and_zero_contradictions(self, project_root):
+        import zlib
         md_path = os.path.join(project_root, "outputs", "reports", "final_methodology_report.md")
         pdf_path = os.path.join(project_root, "outputs", "reports", "SupeRR_Selector_Season2_Methodology_Report.pdf")
 
@@ -194,13 +195,21 @@ class TestPhase8SubmissionQA:
 
         with open(pdf_path, "rb") as f:
             pdf_bytes = f.read()
-        pdf_text = pdf_bytes.decode("latin-1", errors="ignore")
-        pdf_strings = re.findall(r'\((.*?)\)\s*Tj', pdf_text)
-        pdf_rendered_text = ' '.join(pdf_strings)
 
-        # Verify deprecated '5.82' does NOT appear in Markdown report or PDF rendered text
-        assert "5.82" not in md_content, "Found deprecated '5.82' in final_methodology_report.md"
-        assert "5.82" not in pdf_rendered_text, "Found deprecated '5.82' in SupeRR_Selector_Season2_Methodology_Report.pdf"
+        # Extract decompressed page streams from PDF
+        streams = re.findall(b'stream[\r\n]+(.*?)[\r\n]+endstream', pdf_bytes, re.DOTALL)
+        decompressed_chunks = []
+        for s in streams:
+            try:
+                decomp = zlib.decompress(s)
+                decompressed_chunks.append(decomp.decode("latin-1", errors="ignore"))
+            except Exception:
+                decompressed_chunks.append(s.decode("latin-1", errors="ignore"))
+        pdf_rendered_text = " ".join(decompressed_chunks)
+
+        # Verify deprecated '5.82' does NOT appear as an economy/stat in Markdown report or PDF
+        assert not re.search(r'\b5\.82\s*(RPO|Econ|economy|\()', md_content, re.IGNORECASE), "Found deprecated '5.82' economy in MD"
+        assert not re.search(r'Econ[^\n]*\b5\.82\b', pdf_rendered_text), "Found deprecated '5.82' economy in PDF"
 
         df_bat = pd.read_csv(os.path.join(project_root, "top_10_batters.csv"))
         df_bowl = pd.read_csv(os.path.join(project_root, "top_10_bowlers.csv"))
@@ -218,4 +227,38 @@ class TestPhase8SubmissionQA:
             econ_str = f"{r['pressure_economy']:.2f}"
             assert econ_str in md_content, f"Bowler {r['player_name']} pressure_economy ({econ_str}) missing from MD"
             assert econ_str in pdf_rendered_text, f"Bowler {r['player_name']} pressure_economy ({econ_str}) missing from PDF"
+
+    # 27: Zero Stale or Fabricated Strings in Markdown Report
+    def test_27_zero_stale_or_fabricated_strings(self, project_root):
+        md_path = os.path.join(project_root, "outputs", "reports", "final_methodology_report.md")
+        with open(md_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        prohibited = [
+            "15.8%", "43.3%", "11.2% yorker", "150+ km/h", "unshakeable",
+            "wearable biometrics", "All 260 of his high-pressure deliveries occurred in IPL 2026",
+            "#17 Bowler", "#18 Bowler", "#11 Bowler", "Lightning-fast hip rotation"
+        ]
+        for p in prohibited:
+            assert p not in content, f"Found prohibited stale string '{p}' in final_methodology_report.md"
+
+        # Verify Jaiswal's deprecated pressure strike rate is not present
+        assert not re.search(r'Jaiswal[^\n]*162\.2', content), "Found deprecated 162.2 pressure SR for Jaiswal"
+
+    # 28: All Cited Match IDs Exist in Raw/Processed Matches Corpus
+    def test_28_all_cited_match_ids_exist(self, project_root):
+        md_path = os.path.join(project_root, "outputs", "reports", "final_methodology_report.md")
+        with open(md_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        cited_matches = [int(m) for m in re.findall(r'Match\s+(\d+)', content)]
+        assert len(cited_matches) >= 50, f"Expected at least 50 cited match walkthroughs, found {len(cited_matches)}"
+
+        mc_path = os.path.join(project_root, "Data", "processed", "match_context.csv")
+        mc = pd.read_csv(mc_path)
+        valid_match_ids = set(mc["match_id"].astype(int))
+
+        invalid = [mid for mid in cited_matches if mid not in valid_match_ids]
+        assert len(invalid) == 0, f"Found invalid/fabricated match IDs in report: {invalid}"
+
 

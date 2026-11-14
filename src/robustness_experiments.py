@@ -513,10 +513,37 @@ def run_exp5_temporal_validation(deliv, elig_bat, elig_bowl):
     # 2. Bowling expanding window difference
     bowl_mask = deliv["is_legal_ball"] == True
     bowl_df = deliv[bowl_mask].copy()
-    bowl_test = bowl_df[bowl_df["year"] >= 2025].copy()
-    # Bowling delivery diff proxy
+
+    rem_b_bowl = bowl_df["pre_balls_remaining"].values
+    w_lost_bowl = bowl_df["pre_wickets_lost"].values
+    so_mask_bowl = bowl_df["innings"].isin([3, 4]).values
+    base_cost_bowl = np.where(so_mask_bowl, 6.0, 4.0 + 16.0 * (rem_b_bowl / 120.0))
+    wkt_mult_bowl = 1.0 + 0.5 * (w_lost_bowl / 9.0)
+    lambda_wkt_bowl = np.clip(base_cost_bowl * wkt_mult_bowl, 4.0, 24.0)
+
+    train_bowl = bowl_df[bowl_df["year"] <= 2024]
+    test_bowl = bowl_df[bowl_df["year"] >= 2025].copy()
+    test_lambda_bowl = lambda_wkt_bowl[bowl_df["year"] >= 2025]
+
+    cell_runs_bowl = train_bowl.groupby(grp_cols)["bowler_runs_conceded"].mean()
+    cell_wkt_bowl = train_bowl.groupby(grp_cols)["is_bowler_wicket"].mean()
+
+    test_idx_bowl = list(zip(test_bowl["inn_group"], test_bowl["overid"], test_bowl["pace_or_spin"], test_bowl["wkt_bucket"]))
+    test_raw_runs_bowl = pd.Series(test_idx_bowl).map(cell_runs_bowl).fillna(train_bowl["bowler_runs_conceded"].mean()).values * test_bowl["venue_run_rate_multiplier"].values
+    test_raw_wkt_bowl = pd.Series(test_idx_bowl).map(cell_wkt_bowl).fillna(train_bowl["is_bowler_wicket"].mean()).values
+
+    test_rsae_out = test_raw_runs_bowl - test_bowl["bowler_runs_conceded"].values
+    test_wva_out = (test_bowl["is_bowler_wicket"].values - test_raw_wkt_bowl) * test_lambda_bowl
+    test_vaoe_bowl_out = test_rsae_out + test_wva_out
+
+    r_temporal_bowl, _ = pearsonr(test_vaoe_bowl_out, test_bowl["bowl_vaoe"].values)
+    print(f"Expanding-Window Out-of-Sample Bowling VAOE Correlation: r = {r_temporal_bowl:.4f} (Invariant: >= 0.98)")
+
+    test_bowl["exp_vaoe_diff"] = np.abs(test_bowl["bowl_vaoe"].values - test_vaoe_bowl_out)
+    player_exp_diff_bowl = test_bowl.groupby("bowler_id")["exp_vaoe_diff"].mean().to_dict()
+
     elig_bowl_res5 = elig_bowl[["player_id", "player_name", "rank_crr"]].copy()
-    elig_bowl_res5["expanding_window_vaoe_diff"] = 0.0215 # verified empirical average difference on bowling residuals
+    elig_bowl_res5["expanding_window_vaoe_diff"] = elig_bowl_res5["player_id"].map(player_exp_diff_bowl).fillna(0.0).round(4)
 
     # Split-Half Stability Check: Odd vs Even Match IDs
     deliv["match_int"] = pd.to_numeric(deliv["match_id"], errors="coerce").fillna(0).astype(int)

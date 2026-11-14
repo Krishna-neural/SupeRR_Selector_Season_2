@@ -81,55 +81,109 @@ def load_report_data(base_dir="."):
     mc = pd.read_csv(mc_path) if os.path.exists(mc_path) else pd.DataFrame()
     return top_bat, top_bowl, stab, comp_bat, comp_bowl, mc
 
+TEAM_ABBRS = {
+    "Gujarat Titans": "GT", "Sunrisers Hyderabad": "SRH", "Royal Challengers Bengaluru": "RCB",
+    "Royal Challengers Bangalore": "RCB", "Mumbai Indians": "MI", "Chennai Super Kings": "CSK",
+    "Kolkata Knight Riders": "KKR", "Delhi Capitals": "DC", "Punjab Kings": "PBKS",
+    "Lucknow Super Giants": "LSG", "Rajasthan Royals": "RR", "India": "IND",
+    "Australia": "AUS", "Pakistan": "PAK", "South Africa": "SA", "England": "ENG",
+    "West Indies": "WI", "New Zealand": "NZ", "Bangladesh": "BAN", "Afghanistan": "AFG",
+    "Sri Lanka": "SL", "Ireland": "IRE", "Zimbabwe": "ZIM", "Netherlands": "NED"
+}
+
+
+def build_dynamic_walkthroughs(top_bat, top_bowl, base_dir="."):
+    """Dynamically extract Top 3 signature high-pressure match performances for top 10 batters and bowlers."""
+    pmb_path = os.path.join(base_dir, "Data", "processed", "player_match_batting.csv")
+    pmw_path = os.path.join(base_dir, "Data", "processed", "player_match_bowling.csv")
+    deliv_path = os.path.join(base_dir, "Data", "processed", "clean_deliveries.csv")
+    teams_path = os.path.join(base_dir, "Data", "raw", "teams.csv")
+
+    pmb = pd.read_csv(pmb_path)
+    pmw = pd.read_csv(pmw_path)
+    teams_df = pd.read_csv(teams_path).drop_duplicates("team_id")
+    teams_map = teams_df.set_index("team_id")["team_name"].to_dict()
+
+    deliv = pd.read_csv(deliv_path, usecols=["match_id", "striker_id", "bowler_id", "is_high_pressure", "bat_vaoe", "bowl_vaoe"])
+    bat_hp = deliv[deliv["is_high_pressure"] == True].groupby(["match_id", "striker_id"])["bat_vaoe"].sum().reset_index()
+    bat_hp.columns = ["match_id", "player_id", "match_hp_vaoe"]
+    bowl_hp = deliv[deliv["is_high_pressure"] == True].groupby(["match_id", "bowler_id"])["bowl_vaoe"].sum().reset_index()
+    bowl_hp.columns = ["match_id", "player_id", "match_hp_vaoe"]
+
+    pmb["match_id"] = pmb["match_id"].astype(int)
+    bat_hp["match_id"] = bat_hp["match_id"].astype(int)
+    pmb_merged = pmb.merge(bat_hp, on=["match_id", "player_id"], how="left").fillna({"match_hp_vaoe": 0.0})
+
+    pmw["match_id"] = pmw["match_id"].astype(int)
+    bowl_hp["match_id"] = bowl_hp["match_id"].astype(int)
+    pmw_merged = pmw.merge(bowl_hp, on=["match_id", "player_id"], how="left").fillna({"match_hp_vaoe": 0.0})
+
+    bat_walks = {}
+    for _, r in top_bat.iterrows():
+        rk = int(r["rank"])
+        pid = int(r["player_id"])
+        p_matches = pmb_merged[pmb_merged["player_id"] == pid].sort_values(by=["match_hp_vaoe", "runs"], ascending=[False, False]).head(3)
+        w_list = []
+        for _, m in p_matches.iterrows():
+            t_name = teams_map.get(m["opposition_team_id"], f"Team {m['opposition_team_id']}")
+            opp = TEAM_ABBRS.get(t_name, t_name)
+            w_list.append(f"{int(m['runs'])} off {int(m['balls_faced'])}b vs {opp} (Match {int(m['match_id'])}, VAOE {m['match_hp_vaoe']:+.1f}, SR {m['strike_rate']:.1f})")
+        bat_walks[rk] = "; ".join(w_list)
+
+    bowl_walks = {}
+    for _, r in top_bowl.iterrows():
+        rk = int(r["rank"])
+        pid = int(r["player_id"])
+        p_matches = pmw_merged[pmw_merged["player_id"] == pid].sort_values(by=["match_hp_vaoe", "bowler_wickets"], ascending=[False, False]).head(3)
+        w_list = []
+        for _, m in p_matches.iterrows():
+            t_name = teams_map.get(m["opposition_team_id"], f"Team {m['opposition_team_id']}")
+            opp = TEAM_ABBRS.get(t_name, t_name)
+            w_list.append(f"{int(m['bowler_wickets'])}/{int(m['runs_conceded'])} ({int(m['legal_balls'])}b) vs {opp} (Match {int(m['match_id'])}, VAOE {m['match_hp_vaoe']:+.1f}, Econ {m['economy']:.1f})")
+        bowl_walks[rk] = "; ".join(w_list)
+
+    return bat_walks, bowl_walks
+
+
 BATTER_NARRATIVES = {
     1: {
-        "tactical": "Lightning-fast hip rotation dispatches 145km/h back-of-length pace behind square at will across multi-season campaigns.",
-        "walkthrough": "96 off 48 balls vs GT (Match 50944, VAOE +54.4); 59 off 19 vs SRH (Match 50943, SR 310.5); 57 off 18 vs RCB (SR 316.7).",
+        "tactical": "Exceptional scoring rate dispatches high-velocity pace behind square at will across multi-season campaigns.",
         "verdict": "Generational prodigy with verified multi-season performance (95 high-pressure balls in 2025 across IPL & Asia Cup Rising Stars; 165 in 2026 across IPL & India T20Is; 260 total). Highest raw scoring ceiling under pressure in modern T20 cricket."
     },
     2: {
         "tactical": "Unrivaled 360-degree boundary access via late flick, lap scoop, and deep backward point ramp.",
-        "walkthrough": "80 off 47 vs SRH (Match 31273, VAOE +33.1); 56 off 26 vs PBKS (Match 20225, SR 215.4); 57 off 30 vs AUS (Match 17396).",
-        "verdict": "The gold-standard multi-season anchor. Highest LCB80 floor in world cricket (+22.43), proving his baseline floor beats others' ceilings."
+        "verdict": "The gold-standard multi-season anchor. Highest LCB80 floor among the 145 qualified batters (+22.43), proving his baseline floor beats others' ceilings."
     },
     3: {
         "tactical": "High clutch delta (+18.5) providing international run-chase anchor security and low dot rate.",
-        "walkthrough": "80 off 45 vs PAK (Match 38796, VAOE +40.4); 83 off 48 vs WI (Match 19961, SR 172.9); 51 off 23 vs WI (Match 19960).",
         "verdict": "Remarkable clutch escalator who elevates strike rate by +28.7 points under tournament pressure. Prime realistic overseas target."
     },
     4: {
         "tactical": "Subcontinent anchor thriving under spin and variable bounce with sharp pull stroke.",
-        "walkthrough": "82 off 48 vs IND (Match 45512, VAOE +50.3); 56 off 29 vs AFG (Match 29926, SR 193.1); 46 off 29 vs IND (Match 16661).",
         "verdict": "Prodigious clutch delta (+23.8) across 682 pressure balls. Heavy volume anchor offering perfect stability for Indian conditions."
     },
     5: {
         "tactical": "Explosive square cut and pull. High boundary percentage in Powerplay field restrictions.",
-        "walkthrough": "71 off 38 vs MI CT (Match 38102, VAOE +38.2); 53 off 28 vs DSG (Match 38115); 48 off 24 vs PR (Match 38125).",
-        "verdict": "Elite dual-role wicketkeeper-batter with an 81.3% clutch match success rate. Perfect dynamic target to unlock RR squad balance."
+        "verdict": "Elite dual-role wicketkeeper-batter with an 81.2% clutch match success rate. Perfect dynamic target to unlock RR squad balance."
     },
     6: {
         "tactical": "Classical off-side strokeplay maintaining exceptional composure when required rate exceeds 11.0.",
-        "walkthrough": "84 off 49 vs CSK (Match 31254, VAOE +32.5); 62 off 36 vs DC (Match 20212); 96 off 47 in IPL Final (Match 16064).",
         "verdict": "Highest clutch success rate in corpus (82.6%). Tactical accumulator who avoids dot balls without taking reckless dismissal risks."
     },
     7: {
         "tactical": "Slog sweep and pick-up pull thriving in extreme tournament pressure states.",
-        "walkthrough": "79 off 43 vs BAN (Match 41102, VAOE +34.8); 54 off 31 vs AFG (Match 41115); 69 off 40 vs WI.",
         "verdict": "High-crucible specialist (+31.51 extreme VAOE) with proven big-match knockout pedigree across Asia Cups and World Cups."
     },
     8: {
         "tactical": "Destructive left-handed boundary hitter who attacks express pace relentlessly in Powerplay.",
-        "walkthrough": "68 off 34 vs KKR (Match 20245, VAOE +36.4); 77 off 47 vs MI (Match 31289); 50 off 26 vs AUS (Match 17398).",
         "verdict": "Current RR franchise core. Pair with Sooryavanshi for a generational, fear-free opening pair dominating pace bowling."
     },
     9: {
         "tactical": "Metronomic chase master pacing run chases with pristine running between wickets.",
-        "walkthrough": "82* off 53 vs PAK (Match 16789, VAOE +48.6); 76 off 59 in World Cup Final vs SA (Match 44102); 70* off 44 vs GT.",
         "verdict": "The historical benchmark for international chase execution. Solid LCB80 certainty floor (+13.15) validating model calibration."
     },
     10: {
         "tactical": "Master of collapse mitigation and resource preservation in early wickets down states.",
-        "walkthrough": "71* off 51 vs NZ (Match 29112, VAOE +28.9); 68 off 46 vs ENG (Match 29134); 55 off 38 vs SA.",
         "verdict": "High-floor anchor delivering +27.91 extreme crucible VAOE. Preserves team equity in severe collapse situations."
     }
 }
@@ -137,52 +191,42 @@ BATTER_NARRATIVES = {
 BOWLER_NARRATIVES = {
     1: {
         "tactical": "Middle-Overs Strike Enforcer averaging 137.4 km/h (21.7% death balls, 2.9% yorkers), generating high-leverage mis-timed top edges.",
-        "walkthrough": "4/28 vs GT (Match 20234, VAOE +9.8); 3/19 vs AFG (Match 44110, VAOE +8.4); 3/21 vs AUS (Match 16682).",
         "verdict": "Middle-Overs Strike Enforcer providing elite velocity and middle-overs breakthroughs (+13.7 extreme crucible VAOE). High-leverage wicket taker."
     },
     2: {
         "tactical": "Lethal high-velocity strike weapon capable of blowing games open in 2-over bursts.",
-        "walkthrough": "5/25 vs GT (Match 16045, VAOE +12.4); 3/23 vs PBKS (Match 16068, VAOE +8.1); 3/28 vs KKR.",
         "verdict": "High-upside domestic pacer (+7.04 shrunk VAOE) to groom under RR bowling coaching as an impact wicket-taker."
     },
     3: {
         "tactical": "Premier Powerplay containment off-spinner, pristine for large subcontinental grounds.",
-        "walkthrough": "3/16 vs AUS (Match 16678, VAOE +8.9); 2/12 vs NZ (Match 29145, VAOE +7.4); 2/18 vs IND.",
         "verdict": "Powerplay Value Pick: Concedes just 6.76 RPO under pressure (45.3% dot balls), offering pristine control at Sawai Mansingh Stadium."
     },
     4: {
         "tactical": "Elite opening strike enforcer whose early breakthrough value flips match win probabilities.",
-        "walkthrough": "3/31 vs IND (Match 16789, VAOE +7.8); 4/22 vs BAN (Match 38812, VAOE +8.5); 3/19 vs SA.",
         "verdict": "World-class opening bowler whose early dismissal hazard forces opponents into defensive shells."
     },
     5: {
         "tactical": "Quintessential death specialist utilizing deceptive changes of pace.",
-        "walkthrough": "4/30 vs RR (Match 20215, VAOE +6.9); 3/24 vs ENG (Match 38825, VAOE +5.8); 3/17 vs WI.",
         "verdict": "Death Specialist Buy: Dipping yorkers & slower balls (40.8% death share), perfectly pairs with Trent Boult."
     },
     6: {
         "tactical": "Round-arm slinger delivering unplayable yorkers in the final 4 overs.",
-        "walkthrough": "3/15 vs MI (Match 31267, VAOE +7.1); 4/28 vs GT (Match 31288, VAOE +6.8); 3/22 vs DC.",
-        "verdict": "Unplayable death weapon with 52.1% death pressure share and 15.8% yorker execution."
+        "verdict": "Unplayable death weapon with 52.1% death pressure share and 8.6% yorker execution."
     },
     7: {
         "tactical": "High-discipline defensive spinner choking middle overs scoring opportunities.",
-        "walkthrough": "3/18 vs SRH (Match 20202, VAOE +6.2); 2/11 vs DC (Match 31241, VAOE +5.5); 2/16 vs PBKS.",
         "verdict": "Middle-overs defensive anchor conceding only 6.74 RPO under tournament pressure."
     },
     8: {
         "tactical": "Metronomic test-match length discipline transplanted seamlessly to T20.",
-        "walkthrough": "4/25 vs LSG (Match 16012, VAOE +7.4); 3/16 vs WI (Match 16690, VAOE +6.1); 2/19 vs ENG.",
         "verdict": "Elite length discipline (+4.58 shrunk VAOE) to squeeze opposing middle orders."
     },
     9: {
         "tactical": "Heavy-volume spin anchor who consistently restricts run flow across all phases.",
-        "walkthrough": "2/24 vs CSK (Match 31215, VAOE +5.1); 3/23 vs ENG (Match 44115, VAOE +6.8); 2/17 vs MI.",
-        "verdict": "Versatile spin anchor maintaining a 43.3% dot-ball share across 746 high-pressure balls."
+        "verdict": "Versatile spin anchor maintaining a 36.5% dot-ball share across 746 high-pressure balls."
     },
     10: {
         "tactical": "Tactical matchup specialist offering exceptional control on turning wickets.",
-        "walkthrough": "3/15 vs SRH (Match 16035, VAOE +6.5); 2/18 vs AUS (Match 16695, VAOE +5.4); 2/14 vs BAN.",
         "verdict": "Tactical Matchup Specialist: Concedes only 7.09 RPO under pressure (+6.1 extreme VAOE), ideal for Jaipur tracks."
     }
 }
@@ -201,6 +245,8 @@ def fmt_delta(val):
 def build_markdown_report(base_dir="."):
     print("--- [Report 1/3] Assembling Unabridged 17-Section Markdown Report ---")
     top_bat, top_bowl, stab, comp_bat, comp_bowl, mc = load_report_data(base_dir)
+    bat_walks, bowl_walks = build_dynamic_walkthroughs(top_bat, top_bowl, base_dir)
+    bat_walks, bowl_walks = build_dynamic_walkthroughs(top_bat, top_bowl, base_dir)
 
     md_path = os.path.join(base_dir, "outputs", "reports", "final_methodology_report.md")
     root_md = os.path.join(base_dir, "final_methodology_report.md")
@@ -246,6 +292,7 @@ def build_markdown_report(base_dir="."):
         rk = int(r["rank"])
         b_ci = f"[{r['bootstrap_ci_95_low']:.2f}, {r['bootstrap_ci_95_high']:.2f}]"
         nar = BATTER_NARRATIVES[rk]
+        walk_str = bat_walks.get(rk, "")
         bat_dossiers_md.append(
             f"{rk}. **#{rk} {r['player_name']} (CRR: {r['final_crr_score_100']:.2f} | ID: {r['player_id']} | {r['teams_represented']} | {int(r['pressure_balls'])}b):**\n"
             f"   - *Metrics:* HP Balls: {int(r['pressure_balls'])} ({r['effective_sample_size']:.0f} N_eff) | "
@@ -254,7 +301,7 @@ def build_markdown_report(base_dir="."):
             f"Extreme: +{r['extreme_crucible_vaoe']:.1f} | Delta: {fmt_delta(r['shrunk_pressure_delta'])} | "
             f"Clutch Win%: {r['clutch_success_rate']:.1f}% | 95% Boot CI: {b_ci}.\n"
             f"   - *Tactical Signature:* {r['pace_vs_spin_vaoe']} | Top Stroke: {r['top_scoring_strokes']}. {nar['tactical']}\n"
-            f"   - *Signature Match Walkthroughs:* {nar['walkthrough']}\n"
+            f"   - *Signature Match Walkthroughs:* {walk_str}\n"
             f"   - *Front-Office Scouting Verdict:* {nar['verdict']}"
         )
     sec12_md = "\n".join(bat_dossiers_md)
@@ -265,6 +312,7 @@ def build_markdown_report(base_dir="."):
         rk = int(r["rank"])
         b_ci = f"[{r['bootstrap_ci_95_low']:.2f}, {r['bootstrap_ci_95_high']:.2f}]"
         nar = BOWLER_NARRATIVES[rk]
+        walk_str = bowl_walks.get(rk, "")
         bowl_dossiers_md.append(
             f"{rk}. **#{rk} {r['player_name']} (CRR: {r['final_crr_score_100']:.2f} | ID: {r['player_id']} | {r['teams_represented']} | {int(r['pressure_legal_balls'])}b):**\n"
             f"   - *Metrics:* HP Legal Balls: {int(r['pressure_legal_balls'])} ({r['effective_sample_size']:.0f} N_eff) | "
@@ -273,10 +321,34 @@ def build_markdown_report(base_dir="."):
             f"Extreme: +{r['extreme_crucible_vaoe']:.1f} | Delta: {fmt_delta(r['shrunk_pressure_delta'])} | "
             f"Death%: {r['death_pressure_balls_pct']:.1f}% | Dot%: {r['pressure_dot_pct']:.1f}% | 95% Boot CI: {b_ci}.\n"
             f"   - *Biomechanical Signature:* Release Speed: {r['mean_bowl_speed']:.1f} km/h | Yorker: {r['yorker_pct']:.1f}% | Bouncer: {r['bouncer_pct']:.1f}% | Slower: {r['slower_ball_pct']:.1f}% | Dot%: {r['pressure_dot_pct']:.1f}%. {nar['tactical']}\n"
-            f"   - *Signature Match Walkthroughs:* {nar['walkthrough']}\n"
+            f"   - *Signature Match Walkthroughs:* {walk_str}\n"
             f"   - *Front-Office Scouting Verdict:* {nar['verdict']}"
         )
     sec13_md = "\n".join(bowl_dossiers_md)
+
+    # Dynamic Table 14.1 for Markdown (Honourable Mentions Ranks 11-15)
+    elig_cbat = comp_bat[comp_bat['is_eligible_final'] == True].sort_values('rank_crr').reset_index(drop=True)
+    elig_cbowl = comp_bowl[comp_bowl['is_eligible_final'] == True].sort_values('rank_crr').reset_index(drop=True)
+
+    bat_11_15 = elig_cbat.iloc[10:15]
+    bowl_11_15 = elig_cbowl.iloc[10:15]
+
+    t141_rows_md = []
+    for _, r in bat_11_15.iterrows():
+        rk = int(r["rank_crr"])
+        pname = r["player_name"]
+        crr = f"{r['final_crr_score_100']:.2f}"
+        balls = int(r["pressure_balls"])
+        vaoe = f"+{r['shrunk_pressure_vaoe']:.2f}"
+        t141_rows_md.append(f"| **Batter** | **#{rk}** | {pname} | {crr} | {balls} | {vaoe} runs/100b | High-performing clutch contributor regularized by prior. |")
+    for _, r in bowl_11_15.iterrows():
+        rk = int(r["rank_crr"])
+        pname = r["player_name"]
+        crr = f"{r['final_crr_score_100']:.2f}"
+        balls = int(r["pressure_balls"])
+        vaoe = f"+{r['shrunk_pressure_vaoe']:.2f}"
+        t141_rows_md.append(f"| **Bowler** | **#{rk}** | {pname} | {crr} | {balls} | {vaoe} runs/24b | Reliable bowling anchor across tournament pressure overs. |")
+    table_14_1_md = "\n".join(t141_rows_md)
 
     report_content = f"""# RAJASTHAN ROYALS — SUPERR SELECTOR SEASON 2
 ## IDENTIFYING THE MOST RELIABLE PLAYERS UNDER PRESSURE
@@ -399,7 +471,8 @@ $$S = (\\text{{innings}}, \\text{{overid}}, \\text{{pace\_or\_spin}}, \\text{{wk
 scaled by venue run-rate multiplier $\nu_{{\\text{{venue}}}}$.
 
 ### 6.1 Dynamic Wicket Run Cost ($\lambda_{{\\text{{wkt}}}}$)
-$$\lambda_{{\\text{{wkt}}}}(\mathbf{{s}}_t^-) = \\min\\left(24.0, \\max\\left(4.0, \\left[4.0 + 16.0 \\cdot \\left(\\frac{{\\text{{balls\_rem}}}}{{120}}\\right)\\right] \\cdot \\left[1.0 + 0.5 \\cdot \\left(\\frac{{\\text{{wkt\_lost}}}}{{9}}\\right)\\right]\\right)\\right)$$
+$$\lambda_{{\\text{{wkt}}}}(\mathbf{{s}}_t^-) = \\text{{clip}}\\left(4.0 + 18.0 \\cdot \\left(\\frac{{\\text{{pre\_balls\_remaining}}}}{{120.0}}\\right) \\cdot (1.0 - 0.05 \\cdot \\text{{pre\_wickets\_lost}}), 4.0, 24.0\\right)$$
+*(Super Overs fixed at $\\lambda_{{\\text{{wkt}}}} = 12.0$. This parameterization assigns higher mid-innings wicket preservation weights than raw Innings 1 differences, explaining why high-WPV anchors like Sudharsan, Kohli, and Rizwan rank inside the Top 10).*
 
 ### Table 6.1: Over-by-Over Hazard & Dynamic Wicket Cost Summary Table
 | Match Phase | Overs | Scoring Rate (RPO) | Dismissal Hazard (%) | Wicket Value $\lambda_{{\\text{{wkt}}}}$ (Runs) | Tactical Reality |
@@ -536,25 +609,16 @@ Standardized Scaling: $\\text{{Score}}_{{100}} = 15.0 + 85.0 \\cdot \\frac{{Z - 
 *Figure 7: 2D Clutch Quadrant scatter plot showing Normal Baseline vs High-Pressure Crucible Performance.*
 
 ### 14.1 Forensic Explanation of Household Names in Ranks 11–20:
-- **Jasprit Bumrah (#11 Bowler, CRR: 77.80):** Bumrah exhibits the lowest economy in the world ($6.52$ RPO). However, batters deliberately defend against him ($48.2\\%$ dot balls, but only $14$ wickets). In a net run-value model, strike bowlers taking high-leverage wickets (Ferguson: 24, Pathirana: 22, Shaheen: 26) generate higher total value added ($\text{{VAOE}} = \text{{RSAE}} + \lambda_{{\\text{{wkt}}}} \\Delta p$).
-- **Heinrich Klaasen (#11 Batter, CRR: 88.10):** Phenomenal boundary hitter ($21.4\\%$), but elevated dismissal hazard in extreme collapse states slightly reduced his Wicket Probability Value.
-- **Jos Buttler (#12 Batter, CRR: 87.45):** Baseline strike rate ($152.4$) is so high that his clutch differential ($\tilde{{\\Delta}} = +4.12$) is modest compared to Nissanka ($+23.83$).
-- **Rashid Khan (#12 Bowler, CRR: 77.40):** Similar respect penalty; batters play safely for singles against his middle-overs pressure googlies.
-- **Rinku Singh (#14 Batter, CRR: 85.90):** Remarkable finisher, but empirical Bayes shrinkage on 288 balls regularizes his score toward the lower-middle order prior ($-4.47$), stabilizing him in the elite Top 15 without jumping 600-ball titans.
+- **Jasprit Bumrah (#34 Bowler, CRR: 63.82 | 576b | Econ: 7.43 | Dot: 44.0% | 29 Wkts):** Bumrah exhibits elite run-saving under pressure (+3.96 Shrunk RSAE). However, batters deliberately defend against him (44.0% dot balls), seeking survival rather than attack. This lowers his wicket expectation (Shrunk WVA: -2.36), yielding a net Shrunk VAOE of +1.60 runs per 24 balls. In a net run-equity framework, strike bowlers who force high-leverage dismissals (Ferguson: 24, Pathirana: 22, Shaheen: 26) generate higher total value added.
+- **Rashid Khan (#48 Bowler, CRR: 59.70 | 759b | Econ: 7.39 | Dot: 34.4% | 40 Wkts):** Similar containment anchor; opponents refuse to attack his googlies under pressure (+2.71 Shrunk RSAE, -1.48 Shrunk WVA, net +1.23 Shrunk VAOE).
+- **Heinrich Klaasen (#11 Batter, CRR: 87.58 | 403b | SR: 154.2 vs Exp 138.8 | Shrunk VAOE: +20.79):** Sits just 1.14 CRR points behind #10 Mohammad Rizwan (88.72), with an elite boundary-hitting profile and 28.8% Bootstrap Top-10 probability.
+- **Jos Buttler (#77 Batter, CRR: 63.81 | 724b | SR: 144.1 vs Exp 137.9 | Shrunk RAE: -1.12, WPV: +2.06, Net VAOE: +0.94):** World-class opener whose baseline scoring velocity is already so high that his clutch differential (Delta = -21.48) is negative relative to his elite normal-overs scoring.
+- **Statistical Tiering of Bowler Ranks 7–12:** Bowler Ranks #7 through #12 sit within an ultra-tight 1.91 CRR point band (79.02 to 77.11), where rank ordering is highly sensitive to the run-saving (RSAE) vs wicket-taking (WVA) trade-off.
 
 ### Table 14.1: Honourable Mentions Table (Ranks 11–15 for Batters & Bowlers)
 | Discipline | Rank | Player Name | CRR | HP Balls | Shrunk VAOE | Forensic Analytical Explanation |
 | :--- | :---: | :--- | :---: | :---: | :---: | :--- |
-| **Batter** | **#11** | Heinrich Klaasen | 88.10 | 480 | +18.2 runs/100b | Elite boundary hitter; slightly elevated collapse dismissal hazard. |
-| **Batter** | **#12** | Jos Buttler | 87.45 | 610 | +17.5 runs/100b | High baseline strike rate means lower relative clutch differential. |
-| **Batter** | **#13** | Hardik Pandya | 86.80 | 520 | +16.8 runs/100b | Reliable death striker; balanced contribution across phases. |
-| **Batter** | **#14** | Rinku Singh | 85.90 | 288 | +15.9 runs/100b | Clutch finisher; regularized toward lower-middle order prior. |
-| **Batter** | **#15** | Nicholas Pooran | 85.20 | 590 | +15.1 runs/100b | High ceiling; variance in early collapse situations. |
-| **Bowler** | **#11** | Jasprit Bumrah | 77.80 | 450 | +3.42 runs/24b | **Respect Penalty:** Batters play 48.2% dots but concede fewer wickets. |
-| **Bowler** | **#12** | Rashid Khan | 77.40 | 580 | +3.35 runs/24b | Containment anchor; batters refuse to attack his googlies. |
-| **Bowler** | **#13** | Arshdeep Singh | 76.90 | 490 | +3.28 runs/24b | Death specialist; high wicket count offset by boundary spells. |
-| **Bowler** | **#14** | Kuldeep Yadav | 76.20 | 410 | +3.15 runs/24b | Middle-overs wicket threat; requires favorable boundary dimensions. |
-| **Bowler** | **#15** | Kagiso Rabada | 75.80 | 530 | +3.08 runs/24b | Express pace enforcer; reliable Powerplay/Death contributions. |
+{table_14_1_md}
 
 ---
 
@@ -566,20 +630,21 @@ To bridge advanced quantitative modeling with actionable front-office decision-m
 | Strategic Front-Office Bucket | Player & Rank | CRR Score | Role / Discipline | Front-Office Action & Tactical Rationale |
 | :--- | :--- | :---: | :--- | :--- |
 | **Bucket 1 — Current RR Core Validated by Model** | **Vaibhav Sooryavanshi** (#1 Bat) | 100.00 | Top-Order LH Batter | **Franchise Cornerstone:** The model crowns RR's prodigy as the #1 pressure batter (+42.5 extreme VAOE). Lock in as long-term opening asset. |
-| | **Yashasvi Jaiswal** (#8 Bat) | 90.49 | Top-Order LH Batter | **Core Powerhouse:** Elite pace destructor (+21.2 shrunk VAOE). Pair with Sooryavanshi for an ultra-aggressive, high-pressure opening pair. |
+| | **Yashasvi Jaiswal** (#8 Bat) | 90.49 | Top-Order LH Batter | **Core Powerhouse:** Elite pace destructor (+21.2 shrunk VAOE, 165.9 vs 145.5 exp SR). Pair with Sooryavanshi for an ultra-aggressive opening pair. |
 | **Bucket 2 — Franchise-Locked Benchmarks (Model Calibration Proof)** | **Suryakumar Yadav** (#2 Bat) | 99.20 | Middle-Order RH Batter | **Model Calibration Proof (MI):** Unattainable franchise lock; acts as gold-standard benchmark proving model accurately flags elite 360-degree clutch performance. |
-| | **Virat Kohli** (#9 Bat) | 90.16 | Top-Order RH Batter | **Anchor Benchmark (RCB):** Validates model's recognition of historical chase mastery and unshakeable LCB80 (+13.2) floor. |
-| | **Jasprit Bumrah** (#11 Bowler) | 77.80 | Right-Arm Fast | **Respect-Penalty Calibration (MI):** Proves model accurately captures batter risk-aversion (48.2% dots) without distorting wicket expectation. |
-| | **Rashid Khan** (#12 Bowler) | 77.40 | Right-Arm Leg-Spin | **Middle-Overs Benchmark (GT):** Calibrates defensive containment vs wicket-taking trade-offs in clutch situations. |
-| **Bucket 3 — High-Priority Realistic RR Auction / Trade Targets** | **Lockie Ferguson** (#1 Bowler) | 100.00 | Right-Arm Express Pace | **#1 Bowling Auction Priority:** Available enforcer providing extreme 150+ km/h pace (+13.7 extreme VAOE), perfectly solving RR's death-overs wicket-taking. |
-| | **Umran Malik** (#2 Bowler) | 97.22 | Right-Arm Express Pace | **High-Upside Domestic Pacer:** High-velocity strike weapon (+7.04 shrunk VAOE) to groom under RR bowling coaching as an impact wicket-taker. |
+| | **Virat Kohli** (#9 Bat) | 90.16 | Top-Order RH Batter | **Anchor Benchmark (RCB):** Validates model's recognition of historical chase mastery and rock-solid LCB80 (+13.2) floor. |
+| | **Jasprit Bumrah** (#34 Bowler) | 63.82 | Right-Arm Fast | **Respect-Penalty Calibration (MI):** Proves model accurately captures batter risk-aversion (44.0% dots) without distorting wicket expectation. |
+| | **Rashid Khan** (#48 Bowler) | 59.70 | Right-Arm Leg-Spin | **Middle-Overs Benchmark (GT):** Calibrates defensive containment vs wicket-taking trade-offs in clutch situations. |
+| | **Jos Buttler** (#77 Bat) | 63.81 | Top-Order RH Batter / WK | **Normal-Ceiling Benchmark:** Proves model distinguishes between high baseline regular scoring and true positive clutch elevation. |
+| **Bucket 3 — High-Priority Realistic RR Auction / Trade Targets** | **Lockie Ferguson** (#1 Bowler) | 100.00 | Right-Arm Express Pace | **#1 Bowling Auction Priority:** Available enforcer providing 137.4 km/h pace (+13.7 extreme VAOE, 44.4% dot balls), perfectly solving RR's middle-to-death wicket-taking. |
+| | **Umran Malik** (#2 Bowler) | 97.22 | Right-Arm Express Pace | **High-Upside Domestic Pacer:** 144.6 km/h mean speed weapon (+7.04 shrunk VAOE) to groom under RR bowling coaching as an impact wicket-taker. |
 | | **Mahedi Hasan** (#3 Bowler) | 89.34 | Right-Arm Off-Spin / All-Rounder | **Powerplay Value Pick:** Concedes just 6.76 RPO under pressure (45.3% dot balls) offering pristine control at Sawai Mansingh Stadium's large boundaries. |
 | | **Reeza Hendricks** (#3 Bat) | 97.72 | Top-Order RH Batter | **Overseas Anchor Option:** Under-the-radar international anchor (+18.5 clutch delta) offering budget-friendly stability in tense chases. |
 | | **Pathum Nissanka** (#4 Bat) | 96.51 | Top-Order RH Batter | **High-Volume Subcontinent Target:** Prodigious clutch differential (+23.8), exceptionally suited to Indian spin and variable bounce. |
-| | **Ryan Rickelton** (#5 Bat) | 96.25 | Wicketkeeper / LH Batter | **Dynamic WK-Batter Target:** 81.3% clutch success rate, provides dual-role squad flexibility and middle-overs acceleration. |
-| | **Nathan Ellis** (#5 Bowler) | 83.92 | Right-Arm Fast-Medium | **Death Specialist Buy:** Dipping yorkers and deceptive changes of pace (40.8% death overs) to complement Trent Boult's Powerplay opening bursts. |
+| | **Ryan Rickelton** (#5 Bat) | 96.25 | Wicketkeeper / LH Batter | **Dynamic WK-Batter Target:** 81.2% clutch success rate, provides dual-role squad flexibility and middle-overs acceleration. |
+| | **Nathan Ellis** (#5 Bowler) | 83.92 | Right-Arm Fast-Medium | **Death Specialist Buy:** Dipping yorkers (5.8%) and slower balls (36.8%) in death overs (40.8% death share) to complement Trent Boult's Powerplay opening bursts. |
 | | **Kusal Mendis** (#7 Bat) | 90.62 | Wicketkeeper / RH Batter | **Knockout Tournament Performer:** Extreme crucible performer (+31.5) with proven high-stakes subcontinent pedigree. |
-| | **Josh Hazlewood** (#8 Bowler) | 78.95 | Right-Arm Fast-Medium | **Metronomic Anchor Pacer:** Elite test-match length discipline (+4.58 shrunk VAOE) to squeeze opposing middle orders. |
+| | **Josh Hazlewood** (#8 Bowler) | 78.95 | Right-Arm Fast-Medium | **Metronomic Anchor Pacer:** Elite length discipline (+4.58 shrunk VAOE) to squeeze opposing middle orders. |
 | | **Mitchell Santner** (#10 Bowler) | 78.04 | Slow Left-Arm Orthodox | **Tactical Matchup Specialist:** Concedes only 7.09 RPO under pressure (+6.1 extreme VAOE), ideal for turning tracks in Jaipur. |
 
 ---
@@ -597,9 +662,9 @@ To bridge advanced quantitative modeling with actionable front-office decision-m
 | **2** | Threshold Invariance ($P_{{65}} \\to P_{{80}}$) | Percentile sweeps on high-pressure definition | $\\rho > 0.9024$ | 100% of top batters retained across thresholds; bowler core confirmed invariant. |
 | **3** | Weight Perturbation Monte Carlo | 500 Dirichlet perturbations ($\\pm 10\\%$ component weights) | $\\bar{{\\rho}} = 0.9998$ | 10/10 Batters and 10/10 Bowlers retain Top-10 positions with $\\ge 99\\%$ probability. |
 | **4** | Format & Competition Consistency | Stratified performance in IPL vs International T20Is | Dual-Format Cores | Bridges leagues seamlessly; prevents Associate bilateral distortion. |
-| **5** | Temporal Walk-Forward Non-Leakage | Expanding-window training on historical matches predicting future | $r = 0.9902$ | Zero future information leakage; baseline skill persists predictably. |
+| **5** | Temporal Walk-Forward Non-Leakage | Expanding-window training on historical matches predicting future | Bat $r = 0.9902$ / Bowl $r = 0.9903$ | Zero future information leakage; out-of-sample delivery correlation $\ge 0.98$. |
 | **6** | End-to-End Block Bootstrap ($B = 1,000$) | Vectorized match-cluster resampling | Median Rank IQR $\\le 2.0$ | Confirms tight Bayesian posterior distributions and reliable certainty floors. |
-| **7** | Player Forensics & Stability Tiers | Comprehensive classification into Locks vs Core vs Contenders | 18 Locks / 4 Core | Completely accounts for household names (Bumrah respect penalty, Klaasen). |
+| **7** | Player Forensics & Stability Tiers | Classifies 145 batters & 145 bowlers into 3 bootstrap stability tiers | 18 Locks / 4 Core | Completely accounts for household names (Bumrah respect penalty, Klaasen). |
 | **8** | Adversarial Boundary Stress Cases | 6 boundary edge cases (0 balls, 1-ball cameo, abandoned, penalty) | 0 Failures / 0 NaNs | Exception-free mathematical defense against division-by-zero and nulls. |
 
 ---
@@ -610,7 +675,7 @@ In strict compliance with evaluation rubrics, we transparently disclose:
 1. **Multi-Season vs Single-Season Distribution:** Querying `clean_deliveries.csv` directly confirms that Vaibhav Sooryavanshi (#1 Batter, 260 HP balls) is distributed across two competitive seasons: **95 high-pressure balls in 2025** (`IPL 2025` and `Asia Cup Rising Stars 2025`) and **165 high-pressure balls in 2026** (`IPL 2026` and `India T20I series`). While his bootstrap credible interval is wider than multi-year veterans (`[-1.59, +70.72]`), his elite scoring ceiling (+36.53 Shrunk VAOE, LCB80 = +18.80) is verified across both calendar years.
 2. **Absence of 3D Ball Tracking Coordinates:** Release speeds and seam angles are estimated from tabular records rather than continuous Hawk-Eye telemetry.
 3. **Absence of 2D Fielder Coordinates:** Boundary fielder positioning is implicitly captured via venue par rather than spatial coordinates.
-4. **Future Extensions:** Next-generation iterations will incorporate wearable biometrics (heart-rate variability) and continuous spatial tracking data.
+4. **Future Extensions:** Next-generation iterations will incorporate continuous 3D ball-tracking telemetry and spatial tracking coordinates.
 
 ---
 
@@ -653,6 +718,7 @@ All 69 automated tests execute in under 15 seconds, confirming 100% mathematical
 def build_pdf_report(base_dir="."):
     print("--- [Report 2/3] Compiling Publication-Grade 22-Page PDF Whitepaper ---")
     top_bat, top_bowl, stab, comp_bat, comp_bowl, mc = load_report_data(base_dir)
+    bat_walks, bowl_walks = build_dynamic_walkthroughs(top_bat, top_bowl, base_dir)
 
     pdf_path = os.path.join(base_dir, "outputs", "reports", "SupeRR_Selector_Season2_Methodology_Report.pdf")
     root_pdf = os.path.join(base_dir, "SupeRR_Selector_Season2_Methodology_Report.pdf")
@@ -740,7 +806,7 @@ def build_pdf_report(base_dir="."):
     )
 
     # Player Card Helper Function
-    def make_player_card(row, nar, is_bowler=False):
+    def make_player_card(row, nar, is_bowler=False, walk_str=""):
         card_header_bg = colors.HexColor("#004B87") if not is_bowler else colors.HexColor("#EA1B75")
         p_rank = int(row['rank'])
         p_name = str(row['player_name'])
@@ -791,7 +857,7 @@ def build_pdf_report(base_dir="."):
             [c_title, c_crr],
             [Paragraph(m_line, style_card_metric), ""],
             [Paragraph(tactical_text, style_card_text), ""],
-            [Paragraph(f"<b>Signature Match Walkthroughs:</b> {nar['walkthrough']}", style_card_text), ""],
+            [Paragraph(f"<b>Signature Match Walkthroughs:</b> {walk_str}", style_card_text), ""],
             [Paragraph(f"<b>Front-Office Scouting Verdict:</b> {nar['verdict']}", style_card_text), ""]
         ]
         
@@ -940,7 +1006,7 @@ def build_pdf_report(base_dir="."):
         "<b>Analytical Decompositions & Strategic Nuances:</b><br/>"
         "• <i>Vaibhav Sooryavanshi (#1 Bat, 100.00 CRR):</i> All-weather elite ceiling (217.6 pressure SR vs 227.1 normal SR; shrunk RAE = +35.59, WPV = +0.94); his -8.46 Delta reflects an extreme baseline ceiling rather than pressure batting decline.<br/>"
         "• <i>Run Value vs. Wicket Value Split:</i> Sai Sudharsan (#6, RAE -3.02, WPV +24.35), Virat Kohli (#9, RAE -2.23, WPV +23.84), and Mohammad Rizwan (#10, RAE -6.67, WPV +26.62) have negative run values (RAE < 0), with 110%–133% of their net VAOE driven by Wicket Preservation Value (WPV) in collapse states.<br/>"
-        "• <i>Josh Hazlewood (#8 Bowl, 78.95 CRR, Boot% = 29.5%):</i> Holds higher Shrunk VAOE (+4.58) and Boot% than Ranks 5–7 (Ellis, Pathirana, Krunal), but lower death share (19.2% vs 40.8%–52.1%) and lower delta (+0.51) reduce his composite Z-score by 0.07 CRR points behind #7 Krunal Pandya (79.02)."
+        "• <i>Josh Hazlewood (#8 Bowl, 78.95 CRR, Boot% = 29.5%):</i> Holds higher Shrunk VAOE (+4.58) than Ranks 5–7, but #7 Krunal Pandya (79.02) surpassed him on Clutch Delta (+4.34 vs +0.51) and CSR (63.0% vs 52.6%), while Ellis (#5, 40.8%) and Pathirana (#6, 52.1%) gained death role bonuses (+2.0*death_pct)."
     )
     story.append(Paragraph(sec1_commentary_pdf, style_meta))
 
@@ -1114,7 +1180,7 @@ def build_pdf_report(base_dir="."):
         "Expected scoring rates and dismissal hazards are conditioned hierarchically on (innings, overid, pace_or_spin, wkt_bucket) scaled by venue par. "
         "The dynamic wicket cost function lambda_wkt ranges smoothly from 22.0 runs in early Powerplay overs to 4.0 runs at the death:<br/>"
         "<b>lambda_wkt(s_t^-) = clip(4.0 + 18.0 * (pre_balls_remaining / 120.0) * (1.0 - 0.05 * pre_wickets_lost), 4.0, 24.0)</b><br/>"
-        "<i>Empirical Validation & Calibration Disclosure:</i> Validated against 10,878 empirical wicket events in clean_deliveries.csv, lambda_wkt exhibits a Pearson correlation of r = +0.5824 (RMSE = 7.49 runs) with empirical remaining-run drops. This parameterization assigns higher mid-innings wicket preservation weights than raw Innings 1 differences, which explains why high-WPV anchors (Sudharsan, Kohli, Rizwan) rank inside the Top 10. Note that the wickets-lost multiplier (1 - 0.05*wkts_lost) and the bowling death-overs term (+2.0*death_pct) are <b>domain-calibrated structural adjustments</b>, not fitted parameters.",
+        "<i>Empirical Validation & Calibration Disclosure:</i> Validated against 10,881 empirical wicket events in clean_deliveries.csv, lambda_wkt exhibits a Pearson correlation of r = +0.5824 (RMSE = 7.49 runs) with empirical remaining-run drops. This parameterization assigns higher mid-innings wicket preservation weights than raw Innings 1 differences, which explains why high-WPV anchors (Sudharsan, Kohli, Rizwan) rank inside the Top 10. Note that the wickets-lost multiplier (1 - 0.05*wkts_lost) and the bowling death-overs term (+2.0*death_pct) are <b>domain-calibrated structural adjustments</b>, not fitted parameters.",
         style_body
     ))
     story.append(Spacer(1, 4))
@@ -1216,7 +1282,7 @@ def build_pdf_report(base_dir="."):
         ("Kinchit Shah", "Batter", f"{int(r_kin['pressure_balls']) if r_kin is not None else 2}b ({r_kin['effective_sample_size']:.1f} N_eff)" if r_kin is not None else "2b (1.4 N_eff)", f"+{r_kin['raw_pressure_vaoe']:.1f} / 100b" if r_kin is not None else "+364.3 / 100b", f"{r_kin['credibility_factor']:.3f}" if r_kin is not None else "0.007", f"{r_kin['shrunk_pressure_vaoe']:+.1f} / 100b" if r_kin is not None else "-1.8 / 100b", "Severe 364-run noise spike shrunk completely to population prior."),
         ("Kushal Bhurtel", "Batter", f"{int(r_kush['pressure_balls']) if r_kush is not None else 2}b ({r_kush['effective_sample_size']:.1f} N_eff)" if r_kush is not None else "2b (1.6 N_eff)", f"+{r_kush['raw_pressure_vaoe']:.1f} / 100b" if r_kush is not None else "+234.5 / 100b", f"{r_kush['credibility_factor']:.3f}" if r_kush is not None else "0.008", f"{r_kush['shrunk_pressure_vaoe']:+.1f} / 100b" if r_kush is not None else "+1.2 / 100b", "Associate cameo regularized by 99.2%; prevented false ranking."),
         ("Vaibhav Sooryavanshi", "Batter", f"{int(r_v['pressure_balls']) if r_v is not None else 260}b ({r_v['effective_sample_size']:.0f} N_eff)" if r_v is not None else "260b (249 N_eff)", f"+{r_v['raw_pressure_vaoe']:.1f} / 100b" if r_v is not None else "+59.8 / 100b", f"{r_v['credibility_factor']:.3f}" if r_v is not None else "0.554", f"+{r_v['shrunk_pressure_vaoe']:.2f} / 100b" if r_v is not None else "+36.53 / 100b", "Retains #1 clutch ceiling (+36.53) with tightened credible bounds."),
-        ("Suryakumar Yadav", "Batter", f"{int(r_s['pressure_balls']) if r_s is not None else 760}b ({r_s['effective_sample_size']:.0f} N_eff)" if r_s is not None else "760b (787 N_eff)", f"+{r_s['raw_pressure_vaoe']:.1f} / 100b" if r_s is not None else "+35.8 / 100b", f"{r_s['credibility_factor']:.3f}" if r_s is not None else "0.797", f"+{r_s['shrunk_pressure_vaoe']:.2f} / 100b" if r_s is not None else "+30.17 / 100b", "Multi-season anchor retains 80% self-weight; unshakeable LCB80 floor."),
+        ("Suryakumar Yadav", "Batter", f"{int(r_s['pressure_balls']) if r_s is not None else 760}b ({r_s['effective_sample_size']:.0f} N_eff)" if r_s is not None else "760b (787 N_eff)", f"+{r_s['raw_pressure_vaoe']:.1f} / 100b" if r_s is not None else "+35.8 / 100b", f"{r_s['credibility_factor']:.3f}" if r_s is not None else "0.797", f"+{r_s['shrunk_pressure_vaoe']:.2f} / 100b" if r_s is not None else "+30.17 / 100b", "Multi-season anchor retains 80% self-weight; rock-solid LCB80 floor."),
         ("Lockie Ferguson", "Bowler", f"{int(r_l['pressure_legal_balls']) if r_l is not None else 290}b ({r_l['effective_sample_size']:.0f} N_eff)" if r_l is not None else "290b (352 N_eff)", f"+{r_l['raw_pressure_vaoe']:.1f} / 24b" if r_l is not None else "+12.2 / 24b", f"{r_l['credibility_factor']:.3f}" if r_l is not None else "0.600", f"+{r_l['shrunk_pressure_vaoe']:.2f} / 24b" if r_l is not None else "+7.25 / 24b", "Middle-overs enforcer: high-leverage wicket strike rate regularized.")
     ]
     for r in t91_rows:
@@ -1335,35 +1401,35 @@ def build_pdf_report(base_dir="."):
     # =========================================================
     story.append(PageBreak())
     story.append(Paragraph("12. Top 10 Batters Dossiers — Part 1 (Ranks 1 to 3)", style_h1))
-    story.append(make_player_card(top_bat.iloc[0], BATTER_NARRATIVES[1], False))
+    story.append(make_player_card(top_bat.iloc[0], BATTER_NARRATIVES[1], False, bat_walks.get(1, '')))
     story.append(Spacer(1, 6))
-    story.append(make_player_card(top_bat.iloc[1], BATTER_NARRATIVES[2], False))
+    story.append(make_player_card(top_bat.iloc[1], BATTER_NARRATIVES[2], False, bat_walks.get(2, '')))
     story.append(Spacer(1, 6))
-    story.append(make_player_card(top_bat.iloc[2], BATTER_NARRATIVES[3], False))
+    story.append(make_player_card(top_bat.iloc[2], BATTER_NARRATIVES[3], False, bat_walks.get(3, '')))
 
     # =========================================================
     # PAGE 11: BATTERS DOSSIERS PART 2 (#4, #5, #6)
     # =========================================================
     story.append(PageBreak())
     story.append(Paragraph("12. Top 10 Batters Dossiers — Part 2 (Ranks 4 to 6)", style_h1))
-    story.append(make_player_card(top_bat.iloc[3], BATTER_NARRATIVES[4], False))
+    story.append(make_player_card(top_bat.iloc[3], BATTER_NARRATIVES[4], False, bat_walks.get(4, '')))
     story.append(Spacer(1, 6))
-    story.append(make_player_card(top_bat.iloc[4], BATTER_NARRATIVES[5], False))
+    story.append(make_player_card(top_bat.iloc[4], BATTER_NARRATIVES[5], False, bat_walks.get(5, '')))
     story.append(Spacer(1, 6))
-    story.append(make_player_card(top_bat.iloc[5], BATTER_NARRATIVES[6], False))
+    story.append(make_player_card(top_bat.iloc[5], BATTER_NARRATIVES[6], False, bat_walks.get(6, '')))
 
     # =========================================================
     # PAGE 12: BATTERS DOSSIERS PART 3 (#7, #8, #9, #10)
     # =========================================================
     story.append(PageBreak())
     story.append(Paragraph("12. Top 10 Batters Dossiers — Part 3 (Ranks 7 to 10)", style_h1))
-    story.append(make_player_card(top_bat.iloc[6], BATTER_NARRATIVES[7], False))
+    story.append(make_player_card(top_bat.iloc[6], BATTER_NARRATIVES[7], False, bat_walks.get(7, '')))
     story.append(Spacer(1, 4))
-    story.append(make_player_card(top_bat.iloc[7], BATTER_NARRATIVES[8], False))
+    story.append(make_player_card(top_bat.iloc[7], BATTER_NARRATIVES[8], False, bat_walks.get(8, '')))
     story.append(Spacer(1, 4))
-    story.append(make_player_card(top_bat.iloc[8], BATTER_NARRATIVES[9], False))
+    story.append(make_player_card(top_bat.iloc[8], BATTER_NARRATIVES[9], False, bat_walks.get(9, '')))
     story.append(Spacer(1, 4))
-    story.append(make_player_card(top_bat.iloc[9], BATTER_NARRATIVES[10], False))
+    story.append(make_player_card(top_bat.iloc[9], BATTER_NARRATIVES[10], False, bat_walks.get(10, '')))
 
     # =========================================================
     # PAGE 13: SECTION 13 (DASHBOARD FIGURE 6)
@@ -1380,35 +1446,35 @@ def build_pdf_report(base_dir="."):
     # =========================================================
     story.append(PageBreak())
     story.append(Paragraph("13. Top 10 Bowlers Dossiers — Part 1 (Ranks 1 to 3)", style_h1))
-    story.append(make_player_card(top_bowl.iloc[0], BOWLER_NARRATIVES[1], True))
+    story.append(make_player_card(top_bowl.iloc[0], BOWLER_NARRATIVES[1], True, bowl_walks.get(1, '')))
     story.append(Spacer(1, 6))
-    story.append(make_player_card(top_bowl.iloc[1], BOWLER_NARRATIVES[2], True))
+    story.append(make_player_card(top_bowl.iloc[1], BOWLER_NARRATIVES[2], True, bowl_walks.get(2, '')))
     story.append(Spacer(1, 6))
-    story.append(make_player_card(top_bowl.iloc[2], BOWLER_NARRATIVES[3], True))
+    story.append(make_player_card(top_bowl.iloc[2], BOWLER_NARRATIVES[3], True, bowl_walks.get(3, '')))
 
     # =========================================================
     # PAGE 15: BOWLERS DOSSIERS PART 2 (#4, #5, #6)
     # =========================================================
     story.append(PageBreak())
     story.append(Paragraph("13. Top 10 Bowlers Dossiers — Part 2 (Ranks 4 to 6)", style_h1))
-    story.append(make_player_card(top_bowl.iloc[3], BOWLER_NARRATIVES[4], True))
+    story.append(make_player_card(top_bowl.iloc[3], BOWLER_NARRATIVES[4], True, bowl_walks.get(4, '')))
     story.append(Spacer(1, 6))
-    story.append(make_player_card(top_bowl.iloc[4], BOWLER_NARRATIVES[5], True))
+    story.append(make_player_card(top_bowl.iloc[4], BOWLER_NARRATIVES[5], True, bowl_walks.get(5, '')))
     story.append(Spacer(1, 6))
-    story.append(make_player_card(top_bowl.iloc[5], BOWLER_NARRATIVES[6], True))
+    story.append(make_player_card(top_bowl.iloc[5], BOWLER_NARRATIVES[6], True, bowl_walks.get(6, '')))
 
     # =========================================================
     # PAGE 16: BOWLERS DOSSIERS PART 3 (#7, #8, #9, #10)
     # =========================================================
     story.append(PageBreak())
     story.append(Paragraph("13. Top 10 Bowlers Dossiers — Part 3 (Ranks 7 to 10)", style_h1))
-    story.append(make_player_card(top_bowl.iloc[6], BOWLER_NARRATIVES[7], True))
+    story.append(make_player_card(top_bowl.iloc[6], BOWLER_NARRATIVES[7], True, bowl_walks.get(7, '')))
     story.append(Spacer(1, 4))
-    story.append(make_player_card(top_bowl.iloc[7], BOWLER_NARRATIVES[8], True))
+    story.append(make_player_card(top_bowl.iloc[7], BOWLER_NARRATIVES[8], True, bowl_walks.get(8, '')))
     story.append(Spacer(1, 4))
-    story.append(make_player_card(top_bowl.iloc[8], BOWLER_NARRATIVES[9], True))
+    story.append(make_player_card(top_bowl.iloc[8], BOWLER_NARRATIVES[9], True, bowl_walks.get(9, '')))
     story.append(Spacer(1, 4))
-    story.append(make_player_card(top_bowl.iloc[9], BOWLER_NARRATIVES[10], True))
+    story.append(make_player_card(top_bowl.iloc[9], BOWLER_NARRATIVES[10], True, bowl_walks.get(10, '')))
 
     # =========================================================
     # PAGE 17: SECTION 14 (QUADRANT FIGURE 7)
@@ -1435,11 +1501,11 @@ def build_pdf_report(base_dir="."):
     story.append(Paragraph("14.1 Forensic Analysis of Honourable Mentions (Ranks 11–15)", style_h1))
     story.append(Paragraph(
         "A rigorous audit of model validity requires analyzing both the true mathematical Ranks 11–15 and explaining where household benchmarks sit across the complete 145-player pool:<br/>"
-        "• <b>Statistical Tiering of Bowler Ranks 7–14:</b> Only 1 bowler in the entire corpus (Lockie Ferguson) has a 95% bootstrap CI strictly above zero. Bootstrap Top-10 probability ranges from 11.0% to 61.3% for bowlers (vs 22.5% to 75.4% for batters). Furthermore, Bowler Ranks #7 through #12+ sit within an ultra-tight ~1.6 CRR point band (79.02 to 77.11), where rank ordering is highly sensitive to the run-saving (RSAE) vs wicket-taking (WVA) trade-off.<br/>"
-        "• <b>Jasprit Bumrah (#17 Bowler, 73.08 CRR | 457b | Econ: 6.89 | Dot: 44.9% | 16 Wkts):</b> Bumrah suffers the classical 'Respect Penalty'. Batters deliberately defend against him (44.9% dots), producing exceptional run-saving (+3.49 RSAE) but lower wicket volume (+0.13 WVA). In net run-equity, high-leverage strike bowlers who force dismissals generate slightly higher total value added.<br/>"
-        "• <b>Rashid Khan (#18 Bowler, 72.84 CRR | 604b | Econ: 7.21 | Dot: 38.2% | 22 Wkts):</b> Similar containment anchor; opponents refuse to attack his googlies under pressure (+1.76 RSAE, +1.58 WVA).<br/>"
-        "• <b>Heinrich Klaasen (#11 Batter, 87.58 CRR | 403b | SR: 154.2 vs Exp 138.8 | RAE: +11.09, WPV: +9.70):</b> Tremendous boundary striker (+20.79 Shrunk VAOE, 28.8% Boot Top-10); sits just 1.5 CRR points behind #10 Mohammad Rizwan.<br/>"
-        "• <b>Jos Buttler (#20 Batter, 81.89 CRR | 608b | SR: 144.1 vs Exp 137.9 | RAE: +6.21, WPV: +8.54):</b> World-class opener whose high baseline scoring velocity leaves a smaller clutch differential (+2.42 Delta).",
+        "• <b>Statistical Tiering of Bowler Ranks 7–12:</b> Only 1 bowler in the entire corpus (Lockie Ferguson) has a 95% bootstrap CI strictly above zero. Bootstrap Top-10 probability ranges from 11.0% to 61.3% for bowlers (vs 22.5% to 75.4% for batters). Furthermore, Bowler Ranks #7 through #12 sit within an ultra-tight 1.91 CRR point band (79.02 to 77.11), where rank ordering is highly sensitive to the run-saving (RSAE) vs wicket-taking (WVA) trade-off.<br/>"
+        "• <b>Jasprit Bumrah (#34 Bowler, 63.82 CRR | 576b | Econ: 7.43 | Dot: 44.0% | 29 Wkts):</b> Bumrah suffers the classical 'Respect Penalty'. Batters deliberately defend against him (44.0% dots), producing exceptional run-saving (+3.96 RSAE) but lower wicket volume (-2.36 WVA, net +1.60 Shrunk VAOE). In net run-equity, high-leverage strike bowlers who force dismissals generate higher total value added.<br/>"
+        "• <b>Rashid Khan (#48 Bowler, 59.70 CRR | 759b | Econ: 7.39 | Dot: 34.4% | 40 Wkts):</b> Similar containment anchor; opponents refuse to attack his googlies under pressure (+2.71 RSAE, -1.48 WVA, net +1.23 Shrunk VAOE).<br/>"
+        "• <b>Heinrich Klaasen (#11 Batter, 87.58 CRR | 403b | SR: 154.2 vs Exp 138.8 | RAE: +11.09, WPV: +9.70):</b> Tremendous boundary striker (+20.79 Shrunk VAOE, 28.8% Boot Top-10); sits just 1.14 CRR points behind #10 Mohammad Rizwan.<br/>"
+        "• <b>Jos Buttler (#77 Batter, 63.81 CRR | 724b | SR: 144.1 vs Exp 137.9 | RAE: -1.12, WPV: +2.06, Net VAOE: +0.94):</b> World-class opener whose high baseline scoring velocity leaves a negative relative clutch differential (-21.48 Delta relative to his elite normal-overs scoring).",
         style_body
     ))
     story.append(Spacer(1, 6))
@@ -1531,18 +1597,19 @@ def build_pdf_report(base_dir="."):
 
     rows_info = [
         ("Bucket 1 — Current RR Core Validated by Model", "Vaibhav Sooryavanshi (#1 Bat)", "100.00", "Top-Order LH Batter", "<b>RR Retained Core Asset:</b> Crowned #1 clutch batter (+36.53 Shrunk VAOE, 217.6 pressure SR). Validated as an elite opening weapon."),
-        ("Bucket 1 — Current RR Core Validated by Model", "Yashasvi Jaiswal (#8 Bat)", "90.49", "Top-Order LH Batter", "<b>RR Retained Core Asset:</b> +21.24 Shrunk VAOE (162.2 pressure SR vs 142.0 exp). Dominant Powerplay pace striker."),
+        ("Bucket 1 — Current RR Core Validated by Model", "Yashasvi Jaiswal (#8 Bat)", "90.49", "Top-Order LH Batter", "<b>RR Retained Core Asset:</b> +21.24 Shrunk VAOE (165.9 pressure SR vs 145.5 exp). Dominant Powerplay pace striker."),
         ("Bucket 2 — Franchise-Locked Benchmarks", "Suryakumar Yadav (#2 Bat)", "99.20", "Middle-Order RH Batter", "<b>Model Calibration Proof (MI):</b> Unattainable franchise lock; validates 360-degree clutch performance detection."),
-        ("Bucket 2 — Franchise-Locked Benchmarks", "Virat Kohli (#9 Bat)", "90.16", "Top-Order RH Batter", "<b>Anchor Benchmark (RCB):</b> Validates historical chase mastery and unshakeable LCB80 (+13.2) certainty floor."),
-        ("Bucket 2 — Franchise-Locked Benchmarks", "Jasprit Bumrah (#11 Bowler)", "77.80", "Right-Arm Fast", "<b>Respect-Penalty Calibration (MI):</b> Proves model captures batter risk-aversion (48.2% dots) without inflating wickets."),
-        ("Bucket 2 — Franchise-Locked Benchmarks", "Rashid Khan (#12 Bowler)", "77.40", "Right-Arm Leg-Spin", "<b>Middle-Overs Benchmark (GT):</b> Calibrates defensive containment vs strike trade-offs under high pressure."),
-        ("Bucket 3 — High-Priority Realistic RR Targets", "Lockie Ferguson (#1 Bowler)", "100.00", "Right-Arm Express Pace", "<b>Middle-Overs Strike Enforcer:</b> +7.25 Shrunk VAOE (+13.7 extreme VAOE), 137.4 km/h mean speed, 21.7% death share, 40.8% dot balls."),
-        ("Bucket 3 — High-Priority Realistic RR Targets", "Umran Malik (#2 Bowler)", "97.22", "Right-Arm Express Pace", "<b>High-Upside Domestic Pacer:</b> 150+ km/h strike weapon (+7.04 shrunk VAOE) to groom under RR bowling coaching staff."),
+        ("Bucket 2 — Franchise-Locked Benchmarks", "Virat Kohli (#9 Bat)", "90.16", "Top-Order RH Batter", "<b>Anchor Benchmark (RCB):</b> Validates historical chase mastery and rock-solid LCB80 (+13.2) certainty floor."),
+        ("Bucket 2 — Franchise-Locked Benchmarks", "Jasprit Bumrah (#34 Bowler)", "63.82", "Right-Arm Fast", "<b>Respect-Penalty Calibration (MI):</b> Proves model captures batter risk-aversion (44.0% dots) without inflating wickets."),
+        ("Bucket 2 — Franchise-Locked Benchmarks", "Rashid Khan (#48 Bowler)", "59.70", "Right-Arm Leg-Spin", "<b>Middle-Overs Benchmark (GT):</b> Calibrates defensive containment vs strike trade-offs under high pressure."),
+        ("Bucket 2 — Franchise-Locked Benchmarks", "Jos Buttler (#77 Bat)", "63.81", "Top-Order RH Batter / WK", "<b>Normal-Ceiling Benchmark:</b> Proves model distinguishes between high baseline regular scoring and true positive clutch elevation."),
+        ("Bucket 3 — High-Priority Realistic RR Targets", "Lockie Ferguson (#1 Bowler)", "100.00", "Right-Arm Express Pace", "<b>Middle-Overs Strike Enforcer:</b> +7.25 Shrunk VAOE (+13.7 extreme VAOE), 137.4 km/h mean speed, 21.7% death share, 44.4% dot balls."),
+        ("Bucket 3 — High-Priority Realistic RR Targets", "Umran Malik (#2 Bowler)", "97.22", "Right-Arm Express Pace", "<b>High-Upside Domestic Pacer:</b> 144.6 km/h mean speed weapon (+7.04 shrunk VAOE) to groom under RR bowling coaching staff."),
         ("Bucket 3 — High-Priority Realistic RR Targets", "Mahedi Hasan (#3 Bowler)", "89.34", "Right-Arm Off-Spin", "<b>Powerplay Value Pick:</b> Concedes just 6.76 RPO under pressure (45.3% dot balls); pristine control for SMS Stadium Jaipur."),
         ("Bucket 3 — High-Priority Realistic RR Targets", "Reeza Hendricks (#3 Bat)", "97.72", "Top-Order RH Batter", "<b>Overseas Anchor Option:</b> High clutch delta (+18.5), budget-friendly international anchor providing chase stability."),
-        ("Bucket 3 — High-Priority Realistic RR Targets", "Pathum Nissanka (#4 Bat)", "96.51", "Top-Order RH Batter", "<b>High-Volume Subcontinent Target:</b> Prodigious clutch delta (+23.8), exceptionally equipped against spin."),
-        ("Bucket 3 — High-Priority Realistic RR Targets", "Ryan Rickelton (#5 Bat)", "96.25", "Wicketkeeper / LH Batter", "<b>Dynamic WK-Batter Target:</b> 81.3% clutch success rate, provides WK flexibility and middle-overs acceleration."),
-        ("Bucket 3 — High-Priority Realistic RR Targets", "Nathan Ellis (#5 Bowler)", "83.92", "Right-Arm Fast-Medium", "<b>Death Specialist Option:</b> +4.19 Shrunk VAOE, 40.8% death share, 11.2% yorker rate, +1.49 clutch differential."),
+        ("Bucket 3 — High-Priority Realistic RR Targets", "Pathum Nissanka (#4 Bat)", "96.51", "Top-Order RH Batter", "<b>High-Volume Subcontinent Target:</b> Prodigious clutch differential (+23.8), exceptionally equipped against spin."),
+        ("Bucket 3 — High-Priority Realistic RR Targets", "Ryan Rickelton (#5 Bat)", "96.25", "Wicketkeeper / LH Batter", "<b>Dynamic WK-Batter Target:</b> 81.2% clutch success rate, provides WK flexibility and middle-overs acceleration."),
+        ("Bucket 3 — High-Priority Realistic RR Targets", "Nathan Ellis (#5 Bowler)", "83.92", "Right-Arm Fast-Medium", "<b>Death Specialist Option:</b> +4.19 Shrunk VAOE, 40.8% death share, 5.8% yorker, 36.8% slower ball rate."),
         ("Bucket 3 — High-Priority Realistic RR Targets", "Kusal Mendis (#7 Bat)", "90.62", "Wicketkeeper / RH Batter", "<b>Knockout Tournament Performer:</b> Extreme crucible performer (+31.5) with proven high-stakes subcontinent pedigree."),
         ("Bucket 3 — High-Priority Realistic RR Targets", "Josh Hazlewood (#8 Bowler)", "78.95", "Right-Arm Fast-Medium", "<b>Metronomic Anchor Pacer:</b> Elite length discipline (+4.58 shrunk VAOE) to choke opposing middle orders."),
         ("Bucket 3 — High-Priority Realistic RR Targets", "Mitchell Santner (#10 Bowler)", "78.04", "Slow Left-Arm Orthodox", "<b>Tactical Matchup Specialist:</b> Concedes only 7.09 RPO under pressure (+6.1 extreme VAOE), ideal for Jaipur tracks.")
@@ -1580,7 +1647,7 @@ def build_pdf_report(base_dir="."):
     story.append(Paragraph(
         "Phase 7 validated our engine across 8 rigorous experiments and un-rigged sensitivity stress-tests: "
         "(1) Pressure definition comparison; (2) Threshold sweeps (P65-P80); "
-        "(3) <b>Un-Rigged Full-CRR Sensitivity (Tests A, B, C, D)</b>: Scaling lambda_wkt by 0.75x (Bat rho = 0.9980, Bowl rho = 0.9983; Heinrich Klaasen enters at #10 over Rizwan; Axar rises to #8 over Hazlewood); scaling lambda_wkt by 1.25x (Bat rho = 0.9985, Bowl rho = 0.9990; SKY & Hendricks take #1/#2 over Sooryavanshi; Rabada enters at #9); removing bowler death bonus (rho = 0.9977; Krunal #6, Axar #7, Santner #8; Pathirana #11, Nawaz enters #10); and wide +-30% Dirichlet perturbations (Bat rho = 0.9991, Bowl rho = 0.9988); "
+        "(3) <b>Un-Rigged Full-CRR Sensitivity (Tests A, B, C, D)</b>: Scaling lambda_wkt by 0.75x (Bat rho = 0.9980, Bowl rho = 0.9983; Heinrich Klaasen enters at #10 over Rizwan; Axar rises to #8 over Hazlewood); scaling lambda_wkt by 1.25x (Bat rho = 0.9985, Bowl rho = 0.9990; SKY & Hendricks take #1/#2 over Sooryavanshi because Sooryavanshi is 97% RAE (+35.59 vs +0.94 WPV) while SKY (+20.73 WPV) and Hendricks (+17.29 WPV) have massive wicket preservation values; Rabada enters at #9); removing bowler death bonus (rho = 0.9977; Krunal #6, Axar #7, Santner #8; Pathirana #11, Nawaz enters #10); and wide +-30% Dirichlet perturbations (Bat rho = 0.9991, Bowl rho = 0.9988); "
         "(4) Competition consistency; (5) Expanding-window baseline audit (r = 0.9902); (6) B = 1,000 match-cluster bootstrap; (7) Stability tiering; (8) Adversarial edge cases.",
         style_body
     ))
@@ -1595,9 +1662,9 @@ def build_pdf_report(base_dir="."):
         ("2", "Threshold Invariance (P65-P80)", "Percentile sweeps on pressure definition", "rho > 0.9024", "Top-10 overlap is 5-7/10 for batters, 6-7/10 for bowlers."),
         ("3", "Weight Perturbation Monte Carlo", "500 Dirichlet perturbations (+-10% weights)", "rho = 0.9998", "10/10 Batters and Bowlers retained with >= 99% probability."),
         ("4", "Format & Competition Consistency", "Stratified performance in IPL vs T20Is", "Dual-Format Cores", "Bridges leagues seamlessly; avoids Associate bilateral noise."),
-        ("5", "Temporal Walk-Forward Leakage", "Expanding-window historical training", "r = 0.9902", "Zero future information leakage; persistent baseline skill."),
+        ("5", "Temporal Walk-Forward Leakage", "Expanding-window historical training", "Bat: 0.9902 / Bowl: 0.9903", "Zero future information leakage; out-of-sample delivery correlation >= 0.98."),
         ("6", "End-to-End Block Bootstrap", "B = 1,000 match-cluster resampling", "IQR: 9-20 / 9-28", "Bootstrap Rank IQRs: 9.0-20.0 (Batters), 9.0-28.0 (Bowlers)."),
-        ("7", "Player Forensics & Stability Tiers", "Locks vs Core vs Contenders classification", "18 Locks / 4 Core", "Completely accounts for household names (Bumrah penalty)."),
+        ("7", "Player Forensics & Stability Tiers", "Classifies 145 batters & 145 bowlers into 3 tiers", "18 Locks / 4 Core", "Completely accounts for household names (Bumrah respect penalty)."),
         ("8", "Adversarial Boundary Stress Cases", "6 edge cases (0 balls, cameo, abandoned)", "0 Failures / 0 NaNs", "Exception-free mathematical defense against nulls.")
     ]
     for r in t151_rows:
@@ -1630,13 +1697,13 @@ def build_pdf_report(base_dir="."):
     story.append(Paragraph(
         "In strict compliance with academic and professional analytics governance, we transparently disclose key limitations and assumptions: "
         "<br/><br/>1. <b>Single-Season Concentration Risk:</b><br/>"
-        "• <i>Vaibhav Sooryavanshi (#1 Batter, CRR 100.00):</i> All 260 of his high-pressure deliveries occurred in IPL 2026. While Empirical Bayes shrinks his raw sample VAOE (+59.79) to +36.53 (self-weight B = 0.61) and establishes an elite LCB80 floor of +18.80, his 95% bootstrap credible interval is wide ([-1.59, +70.72]). He represents a generational breakthrough talent whose upside is unmatched, but requires pairing with multi-season anchors.<br/>"
+        "• <i>Vaibhav Sooryavanshi (#1 Batter, CRR 100.00):</i> Distributed across two competitive seasons: 95 high-pressure balls in 2025 across IPL & Asia Cup Rising Stars, and 165 in 2026 across IPL & India T20Is (260 total). While Empirical Bayes shrinks his raw sample VAOE (+59.79) to +36.53 (self-weight B = 0.61) and establishes an elite LCB80 floor of +18.80, his 95% bootstrap credible interval is wide ([-1.59, +70.72]). He represents a generational breakthrough talent whose upside is unmatched, verified across multiple tournament cycles.<br/>"
         "• <i>Umran Malik (#2 Bowler, CRR 97.22):</i> With 126 legal pressure balls, he sits near the 120-ball eligibility boundary (B = 0.41, LCB_80 = +2.99, 95% CI: [-1.43, +14.08]). His high rating reflects extreme wicket-taking leverage (+11.74 extreme VAOE), but he is best utilized as an impact strike bowler rather than a defensive death anchor.<br/><br/>"
         "2. <b>Sensor & Telemetry Limitations:</b><br/>"
         "• <i>Absence of Hawk-Eye 3D Trajectory Data:</i> Release speed, release height, and swing/seam deviation angles are inferred from ball attributes rather than direct radar measurements.<br/>"
         "• <i>Absence of 2D Boundary Fielder Coordinates:</i> Field placements (e.g., deep square leg vs fine leg) are implicitly captured through venue par and phase hazard rather than spatial tracking.<br/><br/>"
         "3. <b>Future Architectural Roadmap:</b><br/>"
-        "• Next-generation iterations will integrate real-time wearable biometrics (heart-rate variability under pressure), spatial tracking coordinates, and dynamic player-vs-player matchup graphs.",
+        "• Next-generation iterations will integrate continuous 3D ball-tracking telemetry, spatial tracking coordinates, and dynamic player-vs-player matchup graphs.",
         style_body
     ))
 
