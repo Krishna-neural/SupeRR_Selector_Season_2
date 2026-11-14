@@ -113,7 +113,7 @@ def plot_fig2_over_hazard_wicket_cost(deliv, out_dir):
     and dynamic wicket run cost curve lambda_wkt across match phases.
     """
     print("Generating Fig 2: Over Hazard & Wicket Cost...")
-    fig, ax1 = plt.subplots(figsize=(13, 6.5), dpi=300)
+    fig, ax1 = plt.subplots(figsize=(13.5, 6.8), dpi=300)
 
     deliv_legal = deliv[deliv["is_legal_ball"] == True].copy()
     over_agg = deliv_legal.groupby("overid").agg(
@@ -136,7 +136,7 @@ def plot_fig2_over_hazard_wicket_cost(deliv, out_dir):
     bars = ax1.bar(overs - 0.15, over_agg["rpo"], width=0.35, color=bar_colors, alpha=0.85, label="Scoring Rate (RPO)")
     ax1.set_ylabel("Run Rate (Runs Per Over)", fontsize=12, fontweight="bold", color=RR_BLUE)
     ax1.set_xlabel("Over Number (1 to 20)", fontsize=12, fontweight="bold", color=RR_DARK)
-    ax1.set_ylim(0, 14)
+    ax1.set_ylim(0, 15)
     ax1.set_xticks(overs)
 
     ax2 = ax1.twinx()
@@ -150,13 +150,17 @@ def plot_fig2_over_hazard_wicket_cost(deliv, out_dir):
     ax1.axvspan(6.5, 15.5, color="#D1FAE5", alpha=0.3, zorder=0)
     ax1.axvspan(15.5, 20.5, color="#FEE2E2", alpha=0.3, zorder=0)
 
-    ax1.text(3.5, 13.0, "Powerplay (1–6)\nHigh Early Hazard", ha="center", fontsize=10, fontweight="bold", color=RR_BLUE)
-    ax1.text(11.0, 13.0, "Middle Consolidation (7–15)\nSteady Resource Preservation", ha="center", fontsize=10, fontweight="bold", color=RR_TEAL)
-    ax1.text(18.0, 13.0, "Death Crucible (16–20)\nMax RPO / Low Wkt Scarcity", ha="center", fontsize=10, fontweight="bold", color="#B91C1C")
+    # Shift Powerplay label right/down so it is completely clear of the legend box
+    ax1.text(4.2, 9.8, "Powerplay (1–6)\nHigh Early Hazard", ha="center", fontsize=9.5, fontweight="bold", color=RR_BLUE,
+             bbox=dict(boxstyle="round,pad=0.25", fc="#EFF6FF", ec="#93C5FD", lw=0.8, alpha=0.9))
+    ax1.text(11.0, 13.0, "Middle Consolidation (7–15)\nSteady Resource Preservation", ha="center", fontsize=9.5, fontweight="bold", color=RR_TEAL,
+             bbox=dict(boxstyle="round,pad=0.25", fc="#ECFDF5", ec="#6EE7B7", lw=0.8, alpha=0.9))
+    ax1.text(18.0, 13.0, "Death Crucible (16–20)\nMax RPO / Low Wkt Scarcity", ha="center", fontsize=9.5, fontweight="bold", color="#B91C1C",
+             bbox=dict(boxstyle="round,pad=0.25", fc="#FEF2F2", ec="#FCA5A5", lw=0.8, alpha=0.9))
 
     lines, labels = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines + lines2, labels + labels2, loc="upper left", frameon=True, framealpha=0.9, fontsize=10)
+    ax1.legend(lines + lines2, labels + labels2, loc="upper left", frameon=True, framealpha=0.95, fontsize=9.5, edgecolor="#CBD5E0")
 
     plt.title(r"T20 Match-State Expectations: Over Scoring Rate vs Dismissal Hazard vs Dynamic Wicket Cost $\lambda_{\mathrm{wkt}}$", fontsize=13, fontweight="bold", color=RR_DARK, pad=15)
     plt.tight_layout()
@@ -176,7 +180,7 @@ def plot_fig3_collinearity_orthogonality(deliv, out_dir):
     (Right) Value Added Over Expectation components proving clean orthogonality (r = 0.126, r = -0.117).
     """
     print("Generating Fig 3: Collinearity & Orthogonality...")
-    fig, axes = plt.subplots(1, 2, figsize=(15, 6.5), dpi=300)
+    fig, axes = plt.subplots(1, 2, figsize=(16, 7), dpi=300)
 
     is_bnd = (deliv["is_four"] == True) | (deliv["is_six"] == True)
     is_dot = (deliv["team_runs_on_ball"] == 0)
@@ -188,8 +192,12 @@ def plot_fig3_collinearity_orthogonality(deliv, out_dir):
         "Dot Ball %": is_dot.astype(int) * 100.0
     }).corr()
 
-    sns.heatmap(raw_df, annot=True, fmt=".2f", cmap="Reds", ax=axes[0], vmin=0, vmax=1.0, cbar_kws={"label": "Pearson Correlation (r)"}, annot_kws={"weight": "bold"})
+    sns.heatmap(raw_df, annot=True, fmt=".2f", cmap="Reds", ax=axes[0], vmin=0, vmax=1.0,
+                cbar_kws={"label": "Pearson Correlation (r)"}, annot_kws={"weight": "bold", "size": 10})
     axes[0].set_title("(A) Raw Conventional Cricket Metrics\nSevere Multicollinearity (r > 0.85), Double-Counting & Confounding", fontsize=12, fontweight="bold", color=RR_DARK, pad=12)
+    axes[0].set_ylabel("")
+    axes[0].tick_params(axis="y", labelsize=10.5, pad=5)
+    axes[0].tick_params(axis="x", labelsize=10.5, rotation=15)
 
     ortho_data = pd.DataFrame({
         "Batting RAE (Runs)": deliv.loc[deliv["is_batter_ball_faced"] == True, "bat_rae"],
@@ -198,11 +206,15 @@ def plot_fig3_collinearity_orthogonality(deliv, out_dir):
         "Bowling WVA (Wickets)": deliv.loc[deliv["is_legal_ball"] == True, "bowl_wva"]
     }).corr()
 
-    sns.heatmap(ortho_data, annot=True, fmt=".3f", cmap="vlag", ax=axes[1], vmin=-0.3, vmax=0.3, center=0, cbar_kws={"label": "Pearson Correlation (r)"}, annot_kws={"weight": "bold"})
+    sns.heatmap(ortho_data, annot=True, fmt=".3f", cmap="vlag", ax=axes[1], vmin=-0.3, vmax=0.3, center=0,
+                cbar_kws={"label": "Pearson Correlation (r)"}, annot_kws={"weight": "bold", "size": 10})
     axes[1].set_title("(B) Decomposed Residual Performance Models\nOrthogonal Components: Batting r = +0.126, Bowling r = -0.117", fontsize=12, fontweight="bold", color=RR_DARK, pad=12)
+    axes[1].set_ylabel("")
+    axes[1].tick_params(axis="y", labelsize=10.5, pad=5)
+    axes[1].tick_params(axis="x", labelsize=10.5, rotation=15)
 
-    plt.suptitle("Evidence of Zero Double-Counting: Raw Metrics Multicollinearity vs Residual Orthogonality", fontsize=14, fontweight="bold", color=RR_BLUE, y=1.02)
-    plt.tight_layout()
+    plt.suptitle("Evidence of Zero Double-Counting: Raw Metrics Multicollinearity vs Residual Orthogonality", fontsize=14, fontweight="bold", color=RR_BLUE, y=0.99)
+    plt.subplots_adjust(left=0.14, right=0.96, top=0.88, bottom=0.15, wspace=0.35)
     save_path = os.path.join(out_dir, "fig3_collinearity_and_orthogonality.png")
     plt.savefig(save_path, bbox_inches="tight")
     plt.close()
@@ -224,24 +236,33 @@ def plot_fig4_eb_shrinkage_funnel(bat, bowl, out_dir):
     axes[0].scatter(bat_clean["effective_sample_size"], bat_clean["raw_pressure_vaoe"], color="#94A3B8", alpha=0.45, s=25, label="Raw Unshrunk Sample VAOE")
     axes[0].scatter(bat_clean["effective_sample_size"], bat_clean["shrunk_pressure_vaoe"], color=RR_BLUE, alpha=0.85, s=35, label=r"Shrunk Posterior VAOE ($\tilde{\theta}_{\mathrm{press}}$)")
     
-    anchors = ["Suryakumar Yadav", "Pathum Nissanka", "Virat Kohli", "Vaibhav Sooryavanshi"]
+    anchors = ["Suryakumar Yadav", "Pathum Nissanka", "Virat Kohli"]
     for name in anchors:
         row = bat_clean[bat_clean["player_name"] == name]
         if not row.empty:
             r = row.iloc[0]
             axes[0].annotate(f"{name}", xy=(r["effective_sample_size"], r["shrunk_pressure_vaoe"]),
-                             xytext=(r["effective_sample_size"] + 30, r["shrunk_pressure_vaoe"] + 5),
+                             xytext=(r["effective_sample_size"] + 30, r["shrunk_pressure_vaoe"] + 6),
                              arrowprops=dict(arrowstyle="->", color=RR_PINK, lw=1.5),
                              fontsize=9, fontweight="bold", color=RR_DARK)
+
+    # Specific clean annotation for Vaibhav Sooryavanshi ensuring no overlap with upper right legend
+    v_row = bat_clean[bat_clean["player_name"] == "Vaibhav Sooryavanshi"]
+    if not v_row.empty:
+        vr = v_row.iloc[0]
+        axes[0].annotate("Vaibhav Sooryavanshi", xy=(vr["effective_sample_size"], vr["shrunk_pressure_vaoe"]),
+                         xytext=(vr["effective_sample_size"] + 25, vr["shrunk_pressure_vaoe"] + 14),
+                         arrowprops=dict(arrowstyle="->", color=RR_PINK, lw=1.5),
+                         fontsize=9, fontweight="bold", color=RR_DARK)
 
     outlier = bat_clean[bat_clean["effective_sample_size"] < 40].sort_values("raw_pressure_vaoe", ascending=False)
     if not outlier.empty:
         o = outlier.iloc[0]
         axes[0].annotate(f"Small-Sample Spike:\n{o['player_name']} ({o['raw_pressure_vaoe']:.0f} -> {o['shrunk_pressure_vaoe']:.1f})",
                          xy=(o["effective_sample_size"], o["shrunk_pressure_vaoe"]),
-                         xytext=(o["effective_sample_size"] + 40, o["raw_pressure_vaoe"] - 30),
+                         xytext=(o["effective_sample_size"] + 35, o["raw_pressure_vaoe"] - 48),
                          arrowprops=dict(arrowstyle="->", color="#DC2626", lw=2.0),
-                         fontsize=9, fontweight="bold", color="#DC2626",
+                         fontsize=8.5, fontweight="bold", color="#DC2626",
                          bbox=dict(boxstyle="round,pad=0.3", fc="#FEF2F2", ec="#DC2626", lw=1))
 
     axes[0].axvline(120, color=RR_GOLD, linestyle="--", lw=2.0, label="Production Eligibility Floor (N >= 120)")
@@ -250,13 +271,13 @@ def plot_fig4_eb_shrinkage_funnel(bat, bowl, out_dir):
     axes[0].set_ylabel("VAOE per 100 Pressure Balls (Runs)", fontsize=11, fontweight="bold", color=RR_SLATE)
     axes[0].set_xlim(0, 850)
     axes[0].set_ylim(-60, 160)
-    axes[0].legend(loc="upper right", frameon=True, fontsize=9)
+    axes[0].legend(loc="upper right", frameon=True, framealpha=0.95, fontsize=9, edgecolor="#CBD5E0")
 
     bowl_clean = bowl[bowl["effective_sample_size"] > 0].copy()
     axes[1].scatter(bowl_clean["effective_sample_size"], bowl_clean["raw_pressure_vaoe"], color="#94A3B8", alpha=0.45, s=25, label="Raw Unshrunk Sample VAOE")
     axes[1].scatter(bowl_clean["effective_sample_size"], bowl_clean["shrunk_pressure_vaoe"], color=RR_PINK, alpha=0.85, s=35, label=r"Shrunk Posterior VAOE ($\tilde{\theta}_{\mathrm{press}}$)")
 
-    bowl_anchors = ["Lockie Ferguson", "Shaheen Afridi", "Axar Patel", "Umran Malik"]
+    bowl_anchors = ["Shaheen Afridi", "Axar Patel", "Umran Malik"]
     for name in bowl_anchors:
         row = bowl_clean[bowl_clean["player_name"] == name]
         if not row.empty:
@@ -266,16 +287,25 @@ def plot_fig4_eb_shrinkage_funnel(bat, bowl, out_dir):
                              arrowprops=dict(arrowstyle="->", color=RR_BLUE, lw=1.5),
                              fontsize=9, fontweight="bold", color=RR_DARK)
 
+    # Lockie Ferguson offset shifted safely to avoid any collision with top-right legend
+    lf_row = bowl_clean[bowl_clean["player_name"] == "Lockie Ferguson"]
+    if not lf_row.empty:
+        lfr = lf_row.iloc[0]
+        axes[1].annotate("Lockie Ferguson", xy=(lfr["effective_sample_size"], lfr["shrunk_pressure_vaoe"]),
+                         xytext=(lfr["effective_sample_size"] - 145, lfr["shrunk_pressure_vaoe"] + 2.8),
+                         arrowprops=dict(arrowstyle="->", color=RR_BLUE, lw=1.5),
+                         fontsize=9, fontweight="bold", color=RR_DARK)
+
     axes[1].axvline(120, color=RR_GOLD, linestyle="--", lw=2.0, label="Production Eligibility Floor (N >= 120)")
     axes[1].set_title(r"(B) Bowling Empirical Bayes Shrinkage Funnel" + "\n" + r"Stabilization Constant $K_{\mathrm{bowl}} = 234.3$ Effective Balls", fontsize=12, fontweight="bold", color=RR_DARK)
     axes[1].set_xlabel("Effective High-Pressure Legal Balls (N_{i, eff})", fontsize=11, fontweight="bold", color=RR_SLATE)
     axes[1].set_ylabel("VAOE per 24 Pressure Balls (Runs Conceded Saved)", fontsize=11, fontweight="bold", color=RR_SLATE)
     axes[1].set_xlim(0, 850)
-    axes[1].set_ylim(-20, 30)
-    axes[1].legend(loc="upper right", frameon=True, fontsize=9)
+    axes[1].set_ylim(-20, 32)
+    axes[1].legend(loc="upper right", frameon=True, framealpha=0.95, fontsize=9, edgecolor="#CBD5E0")
 
-    plt.suptitle("Hierarchical Empirical Bayes Regularization: Defense Against Small-Sample Noise Spikes", fontsize=14, fontweight="bold", color=RR_BLUE, y=1.02)
-    plt.tight_layout()
+    plt.suptitle("Hierarchical Empirical Bayes Regularization: Defense Against Small-Sample Noise Spikes", fontsize=14, fontweight="bold", color=RR_BLUE, y=0.99)
+    plt.subplots_adjust(left=0.08, right=0.96, top=0.88, bottom=0.12, wspace=0.28)
     save_path = os.path.join(out_dir, "fig4_empirical_bayes_shrinkage_funnel.png")
     plt.savefig(save_path, bbox_inches="tight")
     plt.close()
@@ -291,11 +321,12 @@ def plot_fig5_top10_batters_dashboard(top_bat, out_dir):
     Final CRR score, Shrunk VAOE with 95% Credible / Bootstrap intervals, and LCB80 floor.
     """
     print("Generating Fig 5: Top 10 Batters Evidence Dashboard...")
-    fig, axes = plt.subplots(1, 2, figsize=(16, 7.5), dpi=300)
+    fig, axes = plt.subplots(1, 2, figsize=(16, 7.8), dpi=300)
+    plt.subplots_adjust(wspace=0.38)
 
     tb = top_bat.sort_values("rank", ascending=False).reset_index(drop=True)
     y_pos = np.arange(len(tb))
-    names = [f"#{r['rank']} {r['player_name']}" for _, r in tb.iterrows()]
+    names = [f"#{int(r['rank'])} {r['player_name']}" for _, r in tb.iterrows()]
 
     bars = axes[0].barh(y_pos, tb["final_crr_score_100"], color=RR_BLUE, height=0.6, alpha=0.9)
     bars[-1].set_color(RR_PINK)
@@ -309,7 +340,7 @@ def plot_fig5_top10_batters_dashboard(top_bat, out_dir):
     axes[0].set_yticks(y_pos)
     axes[0].set_yticklabels(names, fontsize=11, fontweight="bold", color=RR_DARK)
     axes[0].set_xlabel("Clutch Reliability Rating (CRR) [0–100 Championship Scale]", fontsize=11, fontweight="bold", color=RR_SLATE)
-    axes[0].set_title("(A) Official Top 10 Batters: Composite Clutch Rating (CRR)", fontsize=12, fontweight="bold", color=RR_DARK)
+    axes[0].set_title("(A) Top 10 Batters:\nClutch Reliability Rating (CRR)", fontsize=12, fontweight="bold", color=RR_DARK, pad=10)
     axes[0].set_xlim(80, 103)
 
     ci_l = tb["bootstrap_ci_95_low"] if "bootstrap_ci_95_low" in tb.columns else tb["shrunk_pressure_vaoe"] - 5.0
@@ -320,20 +351,20 @@ def plot_fig5_top10_batters_dashboard(top_bat, out_dir):
                     xerr=[tb["shrunk_pressure_vaoe"] - ci_l, ci_h - tb["shrunk_pressure_vaoe"]],
                     fmt="o", color=RR_PINK, ecolor=RR_BLUE, elinewidth=2.2, capsize=5, capthick=1.8, markersize=8, label="Shrunk VAOE with 95% Bayesian CI")
 
-    axes[1].scatter(lcb, y_pos, color=RR_GOLD, s=60, marker="D", zorder=4, label=r"Risk-Averse Floor ($\mathrm{LCB}_{80}$)")
+    axes[1].scatter(lcb, y_pos, color=RR_GOLD, s=60, marker="D", zorder=4, label=r"Certainty Floor ($\mathrm{LCB}_{80}$)")
 
     for idx, r in tb.iterrows():
         h_val = r["bootstrap_ci_95_high"] if "bootstrap_ci_95_high" in r else r["shrunk_pressure_vaoe"] + 5.0
-        axes[1].text(h_val + 1.2, idx, f"+{r['shrunk_pressure_vaoe']:.1f} ({r['pressure_balls']}b)",
-                     va="center", fontsize=9.5, fontweight="bold", color=RR_DARK)
+        axes[1].text(h_val + 1.5, idx, f"+{r['shrunk_pressure_vaoe']:.1f} ({r['pressure_balls']}b)",
+                     va="center", fontsize=9.2, fontweight="bold", color=RR_DARK)
 
     axes[1].axvline(0, color="#94A3B8", linestyle="--", lw=1.2)
     axes[1].set_yticks(y_pos)
     axes[1].set_yticklabels([""] * len(tb))
     axes[1].set_xlabel("Context-Adjusted Value Added per 100 Pressure Balls (Runs)", fontsize=11, fontweight="bold", color=RR_SLATE)
-    axes[1].set_title("(B) Bayesian Statistical Certainty & Credible Intervals", fontsize=12, fontweight="bold", color=RR_DARK)
-    axes[1].set_xlim(0, 52)
-    axes[1].legend(loc="lower right", frameon=True, fontsize=10)
+    axes[1].set_title("(B) Statistical Certainty:\nShrunk VAOE & 95% Bayesian CIs", fontsize=12, fontweight="bold", color=RR_DARK, pad=10)
+    axes[1].set_xlim(-5, 95)
+    axes[1].legend(loc="lower right", bbox_to_anchor=(1.0, 1.03), ncol=2, frameon=True, framealpha=0.95, fontsize=9, edgecolor="#CBD5E0")
 
     plt.suptitle("Official Top 10 Batters Under Pressure: Performance Evidence & Statistical Certainty", fontsize=14, fontweight="bold", color=RR_BLUE, y=0.99)
     plt.tight_layout()
@@ -352,11 +383,12 @@ def plot_fig6_top10_bowlers_dashboard(top_bowl, out_dir):
     Final CRR score, Shrunk VAOE with 95% Credible / Bootstrap intervals, and death-overs share.
     """
     print("Generating Fig 6: Top 10 Bowlers Evidence Dashboard...")
-    fig, axes = plt.subplots(1, 2, figsize=(16, 7.5), dpi=300)
+    fig, axes = plt.subplots(1, 2, figsize=(16, 7.8), dpi=300)
+    plt.subplots_adjust(wspace=0.38)
 
     tb = top_bowl.sort_values("rank", ascending=False).reset_index(drop=True)
     y_pos = np.arange(len(tb))
-    names = [f"#{r['rank']} {r['player_name']}" for _, r in tb.iterrows()]
+    names = [f"#{int(r['rank'])} {r['player_name']}" for _, r in tb.iterrows()]
 
     bars = axes[0].barh(y_pos, tb["final_crr_score_100"], color=RR_PINK, height=0.6, alpha=0.9)
     bars[-1].set_color(RR_BLUE)
@@ -369,7 +401,7 @@ def plot_fig6_top10_bowlers_dashboard(top_bowl, out_dir):
     axes[0].set_yticks(y_pos)
     axes[0].set_yticklabels(names, fontsize=11, fontweight="bold", color=RR_DARK)
     axes[0].set_xlabel("Clutch Reliability Rating (CRR) [0–100 Championship Scale]", fontsize=11, fontweight="bold", color=RR_SLATE)
-    axes[0].set_title("(A) Official Top 10 Bowlers: Composite Clutch Rating (CRR)", fontsize=12, fontweight="bold", color=RR_DARK)
+    axes[0].set_title("(A) Top 10 Bowlers:\nClutch Reliability Rating (CRR)", fontsize=12, fontweight="bold", color=RR_DARK, pad=10)
     axes[0].set_xlim(70, 103)
 
     ci_l = tb["bootstrap_ci_95_low"] if "bootstrap_ci_95_low" in tb.columns else tb["shrunk_pressure_vaoe"] - 1.5
@@ -380,22 +412,22 @@ def plot_fig6_top10_bowlers_dashboard(top_bowl, out_dir):
                     xerr=[tb["shrunk_pressure_vaoe"] - ci_l, ci_h - tb["shrunk_pressure_vaoe"]],
                     fmt="o", color=RR_BLUE, ecolor=RR_PINK, elinewidth=2.2, capsize=5, capthick=1.8, markersize=8, label="Shrunk VAOE with 95% Bayesian CI")
 
-    axes[1].scatter(lcb, y_pos, color=RR_GOLD, s=60, marker="D", zorder=4, label=r"Risk-Averse Floor ($\mathrm{LCB}_{80}$)")
+    axes[1].scatter(lcb, y_pos, color=RR_GOLD, s=60, marker="D", zorder=4, label=r"Certainty Floor ($\mathrm{LCB}_{80}$)")
 
     for idx, r in tb.iterrows():
         death_txt = f"{r['death_pressure_balls_pct']:.0f}% Death" if "death_pressure_balls_pct" in r else ""
         h_val = r["bootstrap_ci_95_high"] if "bootstrap_ci_95_high" in r else r["shrunk_pressure_vaoe"] + 1.5
         b_cnt = r["pressure_legal_balls"] if "pressure_legal_balls" in r else r.get("pressure_balls", 0)
-        axes[1].text(h_val + 0.3, idx, f"+{r['shrunk_pressure_vaoe']:.2f} ({b_cnt}b | {death_txt})",
-                     va="center", fontsize=9.5, fontweight="bold", color=RR_DARK)
+        axes[1].text(h_val + 0.35, idx, f"+{r['shrunk_pressure_vaoe']:.2f} ({b_cnt}b | {death_txt})",
+                     va="center", fontsize=9.2, fontweight="bold", color=RR_DARK)
 
     axes[1].axvline(0, color="#94A3B8", linestyle="--", lw=1.2)
     axes[1].set_yticks(y_pos)
     axes[1].set_yticklabels([""] * len(tb))
     axes[1].set_xlabel("Value Added per 24 Pressure Balls (Runs Conceded Saved)", fontsize=11, fontweight="bold", color=RR_SLATE)
-    axes[1].set_title("(B) Bayesian Statistical Certainty & Death Overs Crucible Share", fontsize=12, fontweight="bold", color=RR_DARK)
-    axes[1].set_xlim(-1, 11)
-    axes[1].legend(loc="lower right", frameon=True, fontsize=10)
+    axes[1].set_title("(B) Statistical Certainty:\nShrunk VAOE & Death Overs Share", fontsize=12, fontweight="bold", color=RR_DARK, pad=10)
+    axes[1].set_xlim(-2, 16)
+    axes[1].legend(loc="lower right", bbox_to_anchor=(1.0, 1.03), ncol=2, frameon=True, framealpha=0.95, fontsize=9, edgecolor="#CBD5E0")
 
     plt.suptitle("Official Top 10 Bowlers Under Pressure: Performance Evidence & Statistical Certainty", fontsize=14, fontweight="bold", color=RR_BLUE, y=0.99)
     plt.tight_layout()
@@ -418,59 +450,89 @@ def plot_fig7_pressure_vs_baseline_quadrant(bat, bowl, out_dir):
 
     bat_elig = bat[bat["is_eligible_final"] == True].copy()
     axes[0].scatter(bat_elig["normal_vaoe_per_100b"], bat_elig["shrunk_pressure_vaoe"],
-                    color="#94A3B8", alpha=0.6, s=40, edgecolors="none")
+                    color="#94A3B8", alpha=0.55, s=35, edgecolors="none")
 
-    diag_bat = np.linspace(-30, 45, 100)
+    diag_bat = np.linspace(-20, 45, 100)
     axes[0].plot(diag_bat, diag_bat, color=RR_GOLD, linestyle="--", lw=1.8, label="Parity Line (y = x, Zero Differential)")
 
-    top10_bat_names = ["Vaibhav Sooryavanshi", "Suryakumar Yadav", "Reeza Hendricks", "Pathum Nissanka",
-                       "Ryan Rickelton", "Sai Sudharsan", "Kusal Mendis", "Yashasvi Jaiswal", "Virat Kohli", "Mohammad Rizwan"]
+    # Deterministic offsets eliminating all label collisions
+    bat_offsets = {
+        "Vaibhav Sooryavanshi": (-18.0, 3.0),
+        "Suryakumar Yadav": (1.8, 1.8),
+        "Reeza Hendricks": (1.5, -3.2),
+        "Pathum Nissanka": (-15.0, 2.5),
+        "Ryan Rickelton": (-15.0, -3.2),
+        "Sai Sudharsan": (1.5, -3.5),
+        "Virat Kohli": (-11.0, 3.2),
+        "Kusal Mendis": (-12.0, -3.2),
+        "Yashasvi Jaiswal": (1.5, 2.8),
+        "Mohammad Rizwan": (1.8, 1.8),
+    }
+
+    top10_bat_names = list(bat_offsets.keys())
     for name in top10_bat_names:
         row = bat_elig[bat_elig["player_name"] == name]
         if not row.empty:
             r = row.iloc[0]
-            axes[0].scatter(r["normal_vaoe_per_100b"], r["shrunk_pressure_vaoe"], color=RR_PINK, s=90, edgecolors=RR_DARK, zorder=5)
+            dx, dy = bat_offsets.get(name, (1.2, 1.5))
+            axes[0].scatter(r["normal_vaoe_per_100b"], r["shrunk_pressure_vaoe"], color=RR_PINK, s=95, edgecolors=RR_DARK, zorder=5)
             axes[0].annotate(f"{r['player_name']}", xy=(r["normal_vaoe_per_100b"], r["shrunk_pressure_vaoe"]),
-                             xytext=(r["normal_vaoe_per_100b"] + 1.2, r["shrunk_pressure_vaoe"] + 1.5),
-                             fontsize=8.5, fontweight="bold", color=RR_DARK)
+                             xytext=(r["normal_vaoe_per_100b"] + dx, r["shrunk_pressure_vaoe"] + dy),
+                             fontsize=8.5, fontweight="bold", color=RR_DARK,
+                             bbox=dict(boxstyle="round,pad=0.18", fc="#FFFFFF", ec="#E2E8F0", lw=0.6, alpha=0.85))
 
     axes[0].axhline(0, color="#CBD5E0", linestyle=":", lw=1.0)
     axes[0].axvline(0, color="#CBD5E0", linestyle=":", lw=1.0)
     axes[0].set_title(r"(A) Batters Clutch Elevation Quadrant" + "\n" + r"Top-Left: True Clutch Escalators ($\tilde{\Delta} > 0$)", fontsize=12, fontweight="bold", color=RR_DARK)
     axes[0].set_xlabel("Normal Baseline VAOE per 100b (Runs)", fontsize=11, fontweight="bold", color=RR_SLATE)
     axes[0].set_ylabel("High-Pressure Shrunk VAOE per 100b (Runs)", fontsize=11, fontweight="bold", color=RR_SLATE)
-    axes[0].set_xlim(-25, 30)
-    axes[0].set_ylim(-20, 45)
-    axes[0].legend(loc="lower right", frameon=True, fontsize=9.5)
+    axes[0].set_xlim(-20, 85)
+    axes[0].set_ylim(-15, 45)
+    axes[0].legend(loc="lower right", frameon=True, framealpha=0.95, fontsize=9.5)
 
     bowl_elig = bowl[bowl["is_eligible_final"] == True].copy()
     axes[1].scatter(bowl_elig["normal_vaoe_per_24b"], bowl_elig["shrunk_pressure_vaoe"],
-                    color="#94A3B8", alpha=0.6, s=40, edgecolors="none")
+                    color="#94A3B8", alpha=0.55, s=35, edgecolors="none")
 
-    diag_bowl = np.linspace(-8, 10, 100)
+    diag_bowl = np.linspace(-6, 9, 100)
     axes[1].plot(diag_bowl, diag_bowl, color=RR_GOLD, linestyle="--", lw=1.8, label="Parity Line (y = x, Zero Differential)")
 
-    top10_bowl_names = ["Lockie Ferguson", "Umran Malik", "Mahedi Hasan", "Shaheen Afridi",
-                        "Nathan Ellis", "Matheesha Pathirana", "Krunal Pandya", "Josh Hazlewood", "Axar Patel", "Mitchell Santner"]
+    # Deterministic offsets eliminating all label collisions
+    bowl_offsets = {
+        "Lockie Ferguson": (0.35, 0.45),
+        "Umran Malik": (-2.1, 0.45),
+        "Mahedi Hasan": (0.35, -0.1),
+        "Shaheen Afridi": (-2.0, 0.2),
+        "Josh Hazlewood": (0.35, 0.35),
+        "Nathan Ellis": (0.35, -0.45),
+        "Matheesha Pathirana": (0.35, 0.2),
+        "Krunal Pandya": (-2.2, -0.45),
+        "Axar Patel": (-1.3, 0.65),
+        "Mitchell Santner": (0.35, -0.55),
+    }
+
+    top10_bowl_names = list(bowl_offsets.keys())
     for name in top10_bowl_names:
         row = bowl_elig[bowl_elig["player_name"] == name]
         if not row.empty:
             r = row.iloc[0]
-            axes[1].scatter(r["normal_vaoe_per_24b"], r["shrunk_pressure_vaoe"], color=RR_BLUE, s=90, edgecolors=RR_DARK, zorder=5)
+            dx, dy = bowl_offsets.get(name, (0.3, 0.3))
+            axes[1].scatter(r["normal_vaoe_per_24b"], r["shrunk_pressure_vaoe"], color=RR_BLUE, s=95, edgecolors=RR_DARK, zorder=5)
             axes[1].annotate(f"{r['player_name']}", xy=(r["normal_vaoe_per_24b"], r["shrunk_pressure_vaoe"]),
-                             xytext=(r["normal_vaoe_per_24b"] + 0.3, r["shrunk_pressure_vaoe"] + 0.3),
-                             fontsize=8.5, fontweight="bold", color=RR_DARK)
+                             xytext=(r["normal_vaoe_per_24b"] + dx, r["shrunk_pressure_vaoe"] + dy),
+                             fontsize=8.5, fontweight="bold", color=RR_DARK,
+                             bbox=dict(boxstyle="round,pad=0.18", fc="#FFFFFF", ec="#E2E8F0", lw=0.6, alpha=0.85))
 
     axes[1].axhline(0, color="#CBD5E0", linestyle=":", lw=1.0)
     axes[1].axvline(0, color="#CBD5E0", linestyle=":", lw=1.0)
     axes[1].set_title(r"(B) Bowlers Clutch Elevation Quadrant" + "\n" + r"Top-Left: True Clutch Escalators ($\tilde{\Delta} > 0$)", fontsize=12, fontweight="bold", color=RR_DARK)
     axes[1].set_xlabel("Normal Baseline VAOE per 24b (Runs Saved)", fontsize=11, fontweight="bold", color=RR_SLATE)
     axes[1].set_ylabel("High-Pressure Shrunk VAOE per 24b (Runs Saved)", fontsize=11, fontweight="bold", color=RR_SLATE)
-    axes[1].set_xlim(-6, 8)
-    axes[1].set_ylim(-4, 9)
-    axes[1].legend(loc="lower right", frameon=True, fontsize=9.5)
+    axes[1].set_xlim(-5, 12)
+    axes[1].set_ylim(-2, 10)
+    axes[1].legend(loc="lower right", frameon=True, framealpha=0.95, fontsize=9.5)
 
-    plt.suptitle("Clutch Elevation Matrix: Normal Baseline vs High-Pressure Crucible Performance", fontsize=14, fontweight="bold", color=RR_BLUE, y=1.02)
+    plt.suptitle("Clutch Elevation Matrix: Normal Baseline vs High-Pressure Crucible Performance", fontsize=14, fontweight="bold", color=RR_BLUE, y=1.01)
     plt.tight_layout()
     save_path = os.path.join(out_dir, "fig7_pressure_vs_baseline_quadrant.png")
     plt.savefig(save_path, bbox_inches="tight")
