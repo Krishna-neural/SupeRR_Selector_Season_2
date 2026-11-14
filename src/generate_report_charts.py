@@ -194,7 +194,7 @@ def plot_fig3_collinearity_orthogonality(deliv, out_dir):
 
     sns.heatmap(raw_df, annot=True, fmt=".2f", cmap="Reds", ax=axes[0], vmin=0, vmax=1.0,
                 cbar_kws={"label": "Pearson Correlation (r)"}, annot_kws={"weight": "bold", "size": 10})
-    axes[0].set_title("(A) Raw Conventional Cricket Metrics\nSevere Multicollinearity (r > 0.85), Double-Counting & Confounding", fontsize=12, fontweight="bold", color=RR_DARK, pad=12)
+    axes[0].set_title("(A) Raw Conventional Cricket Metrics\nSevere Multicollinearity (r > 0.85), Double-Counting & Confounding", fontsize=10.5, fontweight="bold", color=RR_DARK, pad=12)
     axes[0].set_ylabel("")
     axes[0].tick_params(axis="y", labelsize=10.5, pad=5)
     axes[0].tick_params(axis="x", labelsize=10.5, rotation=15)
@@ -208,13 +208,13 @@ def plot_fig3_collinearity_orthogonality(deliv, out_dir):
 
     sns.heatmap(ortho_data, annot=True, fmt=".3f", cmap="vlag", ax=axes[1], vmin=-0.3, vmax=0.3, center=0,
                 cbar_kws={"label": "Pearson Correlation (r)"}, annot_kws={"weight": "bold", "size": 10})
-    axes[1].set_title("(B) Decomposed Residual Performance Models\nOrthogonal Components: Batting r = +0.126, Bowling r = -0.117", fontsize=12, fontweight="bold", color=RR_DARK, pad=12)
+    axes[1].set_title("(B) Decomposed Residual Performance Models\nOrthogonal Components: Batting r = +0.126, Bowling r = -0.117", fontsize=10.5, fontweight="bold", color=RR_DARK, pad=12)
     axes[1].set_ylabel("")
     axes[1].tick_params(axis="y", labelsize=10.5, pad=5)
     axes[1].tick_params(axis="x", labelsize=10.5, rotation=15)
 
     plt.suptitle("Evidence of Zero Double-Counting: Raw Metrics Multicollinearity vs Residual Orthogonality", fontsize=14, fontweight="bold", color=RR_BLUE, y=0.99)
-    plt.subplots_adjust(left=0.14, right=0.96, top=0.88, bottom=0.15, wspace=0.35)
+    plt.subplots_adjust(left=0.15, right=0.96, top=0.88, bottom=0.15, wspace=0.35)
     save_path = os.path.join(out_dir, "fig3_collinearity_and_orthogonality.png")
     plt.savefig(save_path, bbox_inches="tight")
     plt.close()
@@ -258,10 +258,11 @@ def plot_fig4_eb_shrinkage_funnel(bat, bowl, out_dir):
     outlier = bat_clean[bat_clean["effective_sample_size"] < 40].sort_values("raw_pressure_vaoe", ascending=False)
     if not outlier.empty:
         o = outlier.iloc[0]
+        axes[0].plot([o["effective_sample_size"], o["effective_sample_size"]], [o["shrunk_pressure_vaoe"], 148], color="#DC2626", linestyle=":", lw=1.2, alpha=0.7)
         axes[0].annotate(f"Small-Sample Spike:\n{o['player_name']} ({o['raw_pressure_vaoe']:.0f} -> {o['shrunk_pressure_vaoe']:.1f})",
-                         xy=(o["effective_sample_size"], o["shrunk_pressure_vaoe"]),
-                         xytext=(o["effective_sample_size"] + 35, o["raw_pressure_vaoe"] - 48),
-                         arrowprops=dict(arrowstyle="->", color="#DC2626", lw=2.0),
+                         xy=(o["effective_sample_size"], 148),
+                         xytext=(140, 130),
+                         arrowprops=dict(arrowstyle="->", color="#DC2626", lw=1.8),
                          fontsize=8.5, fontweight="bold", color="#DC2626",
                          bbox=dict(boxstyle="round,pad=0.3", fc="#FEF2F2", ec="#DC2626", lw=1))
 

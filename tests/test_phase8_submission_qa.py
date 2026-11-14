@@ -183,3 +183,39 @@ class TestPhase8SubmissionQA:
         overlap = bat_ids.intersection(bowl_ids)
         # Even if an all-rounder were present in both, verify IDs are distinct individuals
         assert len(overlap) == 0, f"Found overlapping player_ids: {overlap}"
+
+    # 26: Verbatim Stats Verification & Zero Contradictory Hardcoding
+    def test_26_verbatim_stats_and_zero_contradictions(self, project_root):
+        md_path = os.path.join(project_root, "outputs", "reports", "final_methodology_report.md")
+        pdf_path = os.path.join(project_root, "outputs", "reports", "SupeRR_Selector_Season2_Methodology_Report.pdf")
+
+        with open(md_path, "r", encoding="utf-8") as f:
+            md_content = f.read()
+
+        with open(pdf_path, "rb") as f:
+            pdf_bytes = f.read()
+        pdf_text = pdf_bytes.decode("latin-1", errors="ignore")
+        pdf_strings = re.findall(r'\((.*?)\)\s*Tj', pdf_text)
+        pdf_rendered_text = ' '.join(pdf_strings)
+
+        # Verify deprecated '5.82' does NOT appear in Markdown report or PDF rendered text
+        assert "5.82" not in md_content, "Found deprecated '5.82' in final_methodology_report.md"
+        assert "5.82" not in pdf_rendered_text, "Found deprecated '5.82' in SupeRR_Selector_Season2_Methodology_Report.pdf"
+
+        df_bat = pd.read_csv(os.path.join(project_root, "top_10_batters.csv"))
+        df_bowl = pd.read_csv(os.path.join(project_root, "top_10_bowlers.csv"))
+
+        # Verify all 10 batters exact pressure_sr and pace_vs_spin_vaoe
+        for _, r in df_bat.iterrows():
+            sr_str = f"{r['pressure_sr']:.2f}"
+            assert sr_str in md_content, f"Batter {r['player_name']} pressure_sr ({sr_str}) missing from MD"
+            assert sr_str in pdf_rendered_text, f"Batter {r['player_name']} pressure_sr ({sr_str}) missing from PDF"
+            assert r["pace_vs_spin_vaoe"] in md_content, f"Batter {r['player_name']} pace_vs_spin_vaoe missing from MD"
+            assert r["pace_vs_spin_vaoe"] in pdf_rendered_text, f"Batter {r['player_name']} pace_vs_spin_vaoe missing from PDF"
+
+        # Verify all 10 bowlers exact pressure_economy
+        for _, r in df_bowl.iterrows():
+            econ_str = f"{r['pressure_economy']:.2f}"
+            assert econ_str in md_content, f"Bowler {r['player_name']} pressure_economy ({econ_str}) missing from MD"
+            assert econ_str in pdf_rendered_text, f"Bowler {r['player_name']} pressure_economy ({econ_str}) missing from PDF"
+
