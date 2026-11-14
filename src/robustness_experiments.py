@@ -312,7 +312,7 @@ def run_exp3_weight_sensitivity(elig_bat, elig_bowl, M=500):
     nom_ranks_bat = elig_bat["rank_crr"].values
 
     for m in range(M):
-        eps = np.random.uniform(-0.10, 0.10, size=5)
+        eps = np.random.uniform(-0.30, 0.30, size=5)
         w_m = base_w_bat * (1.0 + eps)
         w_m /= w_m.sum()
         score_m = Z_bat @ w_m
@@ -350,7 +350,7 @@ def run_exp3_weight_sensitivity(elig_bat, elig_bowl, M=500):
     nom_ranks_bowl = elig_bowl["rank_crr"].values
 
     for m in range(M):
-        eps = np.random.uniform(-0.10, 0.10, size=5)
+        eps = np.random.uniform(-0.30, 0.30, size=5)
         w_m = base_w_bowl * (1.0 + eps)
         w_m /= w_m.sum()
         score_m = Z_bowl @ w_m

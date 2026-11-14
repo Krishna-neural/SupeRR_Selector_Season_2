@@ -17,30 +17,35 @@ This research report presents the definitive mathematical and statistical method
 ### 1.1 Official Top 10 Batters Under Pressure (Unstop Dropdown Selections)
 | Rank | Player ID | Player Name | Primary Role | Press Balls ($N_{\text{eff}}$) | Press SR (Exp) | Shrunk VAOE | $	ext{LCB}_{80}$ Floor | Extreme VAOE | Clutch $\Delta$ | Clutch Win % | 95% Boot CI | Final CRR |
 | :---: | :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **#1** | `50284` | **Vaibhav Sooryavanshi** | Top Order (1-3) | 260 (319) | 217.6 (145.6) | +36.53 | +18.80 | +42.5 | -8.5 | 70.6% | [-1.6, 70.7] | **100.00** |
-| **#2** | `1699` | **Suryakumar Yadav** | Middle Order (4-5) | 760 (975) | 158.8 (140.1) | +30.17 | +22.43 | +26.0 | +5.1 | 76.5% | [15.2, 43.8] | **99.20** |
-| **#3** | `768` | **Reeza Hendricks** | Top Order (1-3) | 301 (371) | 164.1 (144.7) | +25.68 | +13.61 | +36.5 | +18.5 | 75.0% | [1.0, 41.0] | **97.72** |
-| **#4** | `6931` | **Pathum Nissanka** | Top Order (1-3) | 682 (870) | 143.7 (127.4) | +26.50 | +16.90 | +18.2 | +23.8 | 72.2% | [8.8, 42.5] | **96.51** |
-| **#5** | `4007` | **Ryan Rickelton** | Top Order (1-3) | 246 (312) | 157.3 (142.6) | +24.43 | +10.80 | +23.6 | +23.4 | 81.2% | [-3.2, 43.9] | **96.25** |
-| **#6** | `23450` | **Sai Sudharsan** | Top Order (1-3) | 450 (590) | 151.8 (151.3) | +21.33 | +12.08 | +23.0 | +3.9 | 82.6% | [3.4, 33.6] | **91.77** |
-| **#7** | `3672` | **Kusal Mendis** | Top Order (1-3) | 490 (619) | 130.3 (126.2) | +18.66 | +8.37 | +31.5 | +16.5 | 71.4% | [-1.6, 35.0] | **90.62** |
-| **#8** | `6819` | **Yashasvi Jaiswal** | Top Order (1-3) | 588 (755) | 165.9 (145.5) | +21.24 | +9.51 | +22.2 | +11.7 | 75.8% | [-2.4, 38.6] | **90.49** |
-| **#9** | `47` | **Virat Kohli** | Top Order (1-3) | 667 (847) | 146.6 (148.7) | +21.61 | +13.15 | +27.0 | +3.4 | 70.3% | [6.0, 36.6] | **90.16** |
-| **#10** | `3024` | **Mohammad Rizwan** | Top Order (1-3) | 404 (525) | 118.3 (134.2) | +19.95 | +11.98 | +27.9 | -2.4 | 73.7% | [0.8, 34.2] | **88.72** |
+| **#1** | `50284` | **Vaibhav Sooryavanshi** | Top Order (1-3) | 260 (319) | 217.6 (145.6) | +35.59 | +0.94 | +36.53 | +18.80 | -8.5 | 70.6% | [-1.6, 70.7] | 74.8% | **100.00** |
+| **#2** | `1699` | **Suryakumar Yadav** | Middle Order (4-5) | 760 (975) | 158.8 (140.1) | +13.56 | +16.61 | +30.17 | +22.43 | +5.1 | 76.5% | [15.2, 43.8] | 75.4% | **99.20** |
+| **#3** | `768` | **Reeza Hendricks** | Top Order (1-3) | 301 (371) | 164.1 (144.7) | +11.68 | +14.00 | +25.68 | +13.61 | +18.5 | 75.0% | [1.0, 41.0] | 51.6% | **97.72** |
+| **#4** | `6931` | **Pathum Nissanka** | Top Order (1-3) | 682 (870) | 143.7 (127.4) | +11.06 | +15.44 | +26.50 | +16.90 | +23.8 | 72.2% | [8.8, 42.5] | 56.2% | **96.51** |
+| **#5** | `4007` | **Ryan Rickelton** | Top Order (1-3) | 246 (312) | 157.3 (142.6) | +9.07 | +15.36 | +24.43 | +10.80 | +23.4 | 81.2% | [-3.2, 43.9] | 43.9% | **96.25** |
+| **#6** | `23450` | **Sai Sudharsan** | Top Order (1-3) | 450 (590) | 151.8 (151.3) | -3.02 | +24.35 | +21.33 | +12.08 | +3.9 | 82.6% | [3.4, 33.6] | 28.6% | **91.77** |
+| **#7** | `3672` | **Kusal Mendis** | Top Order (1-3) | 490 (619) | 130.3 (126.2) | +2.18 | +16.48 | +18.66 | +8.37 | +16.5 | 71.4% | [-1.6, 35.0] | 22.5% | **90.62** |
+| **#8** | `6819` | **Yashasvi Jaiswal** | Top Order (1-3) | 588 (755) | 165.9 (145.5) | +13.82 | +7.42 | +21.24 | +9.51 | +11.7 | 75.8% | [-2.4, 38.6] | 32.2% | **90.49** |
+| **#9** | `47` | **Virat Kohli** | Top Order (1-3) | 667 (847) | 146.6 (148.7) | -2.23 | +23.84 | +21.61 | +13.15 | +3.4 | 70.3% | [6.0, 36.6] | 31.5% | **90.16** |
+| **#10** | `3024` | **Mohammad Rizwan** | Top Order (1-3) | 404 (525) | 118.3 (134.2) | -6.67 | +26.62 | +19.95 | +11.98 | -2.4 | 73.7% | [0.8, 34.2] | 24.1% | **88.72** |
 
 ### 1.2 Official Top 10 Bowlers Under Pressure (Unstop Dropdown Selections)
 | Rank | Player ID | Player Name | Discipline | Press Balls ($N_{\text{eff}}$) | Press Econ (Exp) | Shrunk VAOE | $	ext{LCB}_{80}$ Floor | Extreme VAOE | Clutch $\Delta$ | Death % | 95% Boot CI | Final CRR |
 | :---: | :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **#1** | `4692` | **Lockie Ferguson** | Pace | 290 (352) | 8.56 (9.56) | +7.25 | +3.70 | +13.7 | +6.6 | 21.7% | [0.4, 13.6] | **100.00** |
-| **#2** | `25048` | **Umran Malik** | Pace | 126 (161) | 9.42 (9.77) | +7.04 | +2.99 | +11.7 | +7.6 | 27.8% | [-1.4, 14.1] | **97.22** |
-| **#3** | `5837` | **Mahedi Hasan** | Spin | 279 (304) | 6.76 (6.98) | +6.99 | +3.12 | +4.0 | +5.8 | 8.6% | [-1.6, 12.9] | **89.34** |
-| **#4** | `6355` | **Shaheen Afridi** | Pace | 431 (515) | 6.97 (8.20) | +5.45 | +2.30 | +3.8 | +5.7 | 23.4% | [-0.4, 10.8] | **86.27** |
-| **#5** | `7920` | **Nathan Ellis** | Pace | 316 (400) | 8.13 (9.63) | +4.19 | +1.34 | +5.3 | +1.5 | 40.8% | [-0.5, 8.8] | **83.92** |
-| **#6** | `8661` | **Matheesha Pathirana** | Pace | 303 (391) | 9.39 (10.12) | +3.87 | +1.25 | +3.3 | -1.0 | 52.1% | [-0.7, 9.0] | **80.90** |
-| **#7** | `4219` | **Krunal Pandya** | Spin | 428 (552) | 6.74 (8.14) | +3.46 | +1.12 | +4.1 | +4.3 | 1.6% | [-1.3, 7.5] | **79.02** |
-| **#8** | `830` | **Josh Hazlewood** | Pace | 479 (620) | 8.55 (9.15) | +4.58 | +1.47 | +4.6 | +0.5 | 19.2% | [-1.1, 10.2] | **78.95** |
-| **#9** | `2876` | **Axar Patel** | Spin | 746 (933) | 7.30 (8.13) | +3.59 | +1.51 | +4.1 | +4.0 | 5.5% | [-0.3, 7.8] | **78.26** |
-| **#10** | `4101` | **Mitchell Santner** | Spin | 426 (509) | 7.09 (7.63) | +3.64 | +0.84 | +6.1 | +3.4 | 7.8% | [-0.9, 8.5] | **78.04** |
+| **#1** | `4692` | **Lockie Ferguson** | Pace | 290 (352) | 8.56 (9.56) | +3.13 | +4.12 | +7.25 | +3.70 | +6.6 | 21.7% | [0.4, 13.6] | 61.3% | **100.00** |
+| **#2** | `25048` | **Umran Malik** | Pace | 126 (161) | 9.42 (9.77) | +2.38 | +4.66 | +7.04 | +2.99 | +7.6 | 27.8% | [-1.4, 14.1] | 57.4% | **97.22** |
+| **#3** | `5837` | **Mahedi Hasan** | Spin | 279 (304) | 6.76 (6.98) | +1.50 | +5.49 | +6.99 | +3.12 | +5.8 | 8.6% | [-1.6, 12.9] | 47.6% | **89.34** |
+| **#4** | `6355` | **Shaheen Afridi** | Pace | 431 (515) | 6.97 (8.20) | +2.81 | +2.64 | +5.45 | +2.30 | +5.7 | 23.4% | [-0.4, 10.8] | 39.3% | **86.27** |
+| **#5** | `7920` | **Nathan Ellis** | Pace | 316 (400) | 8.13 (9.63) | +2.25 | +1.94 | +4.19 | +1.34 | +1.5 | 40.8% | [-0.5, 8.8] | 20.4% | **83.92** |
+| **#6** | `8661` | **Matheesha Pathirana** | Pace | 303 (391) | 9.39 (10.12) | +1.98 | +1.89 | +3.87 | +1.25 | -1.0 | 52.1% | [-0.7, 9.0] | 19.2% | **80.90** |
+| **#7** | `4219` | **Krunal Pandya** | Spin | 428 (552) | 6.74 (8.14) | +3.62 | -0.16 | +3.46 | +1.12 | +4.3 | 1.6% | [-1.3, 7.5] | 11.0% | **79.02** |
+| **#8** | `830` | **Josh Hazlewood** | Pace | 479 (620) | 8.55 (9.15) | +1.53 | +3.05 | +4.58 | +1.47 | +0.5 | 19.2% | [-1.1, 10.2] | 29.5% | **78.95** |
+| **#9** | `2876` | **Axar Patel** | Spin | 746 (933) | 7.30 (8.13) | +2.85 | +0.74 | +3.59 | +1.51 | +4.0 | 5.5% | [-0.3, 7.8] | 13.5% | **78.26** |
+| **#10** | `4101` | **Mitchell Santner** | Spin | 426 (509) | 7.09 (7.63) | +1.18 | +2.46 | +3.64 | +0.84 | +3.4 | 7.8% | [-0.9, 8.5] | 19.7% | **78.04** |
+
+### Analytical Insights: Run vs. Wicket Value Decomposition & Ceiling Effects
+- **Vaibhav Sooryavanshi (#1 Batter, 100.00 CRR):** An all-weather elite scorer (`217.6` pressure SR vs `227.1` normal SR; `shrunk_rae = +35.59`, `shrunk_wpv = +0.94`). His `-8.46` Delta reflects an extreme normal-overs ceiling effect rather than pressure batting decline.
+- **Run Value vs. Wicket Value Drivers:** Explicitly inspecting the decomposition reveals that **Sai Sudharsan** (#6, `RAE -3.02`, `WPV +24.35`), **Virat Kohli** (#9, `RAE -2.23`, `WPV +23.84`), and **Mohammad Rizwan** (#10, `RAE -6.67`, `WPV +26.62`) exhibit negative context-adjusted run accumulation (`shrunk_rae < 0`). Between **110% and 133%** of their net `shrunk_pressure_vaoe` is driven by **Wicket Preservation Value (`WPV`)** in collapse and high-hazard states.
+- **Josh Hazlewood (#8 Bowler, `VAOE +4.58`, `Boot Top-10 = 29.5%`) vs. Ranks 5–7:** Despite having higher Shrunk VAOE (`+4.58`) and higher Bootstrap Top-10 probability (`29.5%`) than Nathan Ellis (`+4.19`), Matheesha Pathirana (`+3.87`), and Krunal Pandya (`+3.46`), Hazlewood sits at #8 due to a lower death-overs share (`19.2%` vs Pathirana `52.1%` and Ellis `40.8%` under the `+2.0 * death_pct` role difficulty adjustment), a lower delta (`+0.51` vs Krunal `+4.34`), and a lower clutch spell rate (`52.6%` vs `62.5%–64.3%`), pulling his composite Z-score down by `0.07` CRR points behind #7 Krunal Pandya (`79.02` vs `78.95`).
 
 ---
 
@@ -310,9 +315,9 @@ Standardized Scaling: $\text{Score}_{100} = 15.0 + 85.0 \cdot \frac{Z - Z_{\min}
 ### Individual Player Dossiers:
 1. **#1 Lockie Ferguson (CRR: 100.00 | ID: 4692 | Gujarat Titans, Kolkata Knight Riders, New Zealand, Punjab Kings, Royal Challengers Bengaluru | 290b):**
    - *Metrics:* HP Legal Balls: 290 (352 N_eff) | HP Econ: 8.56 (Exp: 9.56, Saved: +1.00 RPO) | Shrunk VAOE: +7.25 | LCB_80: +3.70 | Extreme: +13.7 | Delta: +6.6 | Death%: 21.7% | Dot%: 44.4% | 95% Boot CI: [0.40, 13.56].
-   - *Biomechanical Signature:* Release Speed: 137.4 km/h | Yorker: 3.0% | Bouncer: 5.4% | Slower: 21.4% | Dot%: 44.4%. Express pace weapon generating high-leverage mis-timed top edges under pressure.
+   - *Biomechanical Signature:* Release Speed: 137.4 km/h | Yorker: 3.0% | Bouncer: 5.4% | Slower: 21.4% | Dot%: 44.4%. Middle-Overs Strike Enforcer averaging 137.4 km/h (21.7% death balls, 2.9% yorkers), generating high-leverage mis-timed top edges.
    - *Signature Match Walkthroughs:* 4/28 vs GT (Match 20234, VAOE +9.8); 3/19 vs AFG (Match 44110, VAOE +8.4); 3/21 vs AUS (Match 16682).
-   - *Front-Office Scouting Verdict:* #1 Bowling Auction Priority: Available enforcer providing extreme 150+ km/h pace (+13.7 extreme VAOE), perfectly solving RR death wicket needs.
+   - *Front-Office Scouting Verdict:* Middle-Overs Strike Enforcer providing elite velocity and middle-overs breakthroughs (+13.7 extreme crucible VAOE). High-leverage wicket taker.
 2. **#2 Umran Malik (CRR: 97.22 | ID: 25048 | India, Sunrisers Hyderabad | 126b):**
    - *Metrics:* HP Legal Balls: 126 (161 N_eff) | HP Econ: 9.42 (Exp: 9.77, Saved: +0.35 RPO) | Shrunk VAOE: +7.04 | LCB_80: +2.99 | Extreme: +11.7 | Delta: +7.6 | Death%: 27.8% | Dot%: 46.1% | 95% Boot CI: [-1.43, 14.08].
    - *Biomechanical Signature:* Release Speed: 144.6 km/h | Yorker: 2.2% | Bouncer: 10.6% | Slower: 1.7% | Dot%: 46.1%. Lethal high-velocity strike weapon capable of blowing games open in 2-over bursts.

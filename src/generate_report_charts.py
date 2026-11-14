@@ -177,11 +177,19 @@ def plot_fig3_collinearity_orthogonality(deliv, out_dir):
     """
     Side-by-side correlation heatmaps:
     (Left) Raw conventional metrics showing severe collinearity (> 0.85).
-    (Right) Value Added Over Expectation components proving clean orthogonality (r = 0.126, r = -0.117).
+    (Right) Value Added Over Expectation decomposed components proving clean within-discipline orthogonality:
+            Batting: RAE vs WPV (r = +0.126)
+            Bowling: RSAE vs WVA (r = -0.117)
     """
     print("Generating Fig 3: Collinearity & Orthogonality...")
-    fig, axes = plt.subplots(1, 2, figsize=(16, 7), dpi=300)
+    fig = plt.figure(figsize=(18, 6.5), dpi=300)
+    gs = fig.add_gridspec(1, 3, width_ratios=[1.7, 1.1, 1.1])
 
+    ax0 = fig.add_subplot(gs[0, 0])
+    ax1 = fig.add_subplot(gs[0, 1])
+    ax2 = fig.add_subplot(gs[0, 2])
+
+    # Panel A: Raw conventional metrics
     is_bnd = (deliv["is_four"] == True) | (deliv["is_six"] == True)
     is_dot = (deliv["team_runs_on_ball"] == 0)
     raw_df = pd.DataFrame({
@@ -192,29 +200,43 @@ def plot_fig3_collinearity_orthogonality(deliv, out_dir):
         "Dot Ball %": is_dot.astype(int) * 100.0
     }).corr()
 
-    sns.heatmap(raw_df, annot=True, fmt=".2f", cmap="Reds", ax=axes[0], vmin=0, vmax=1.0,
+    sns.heatmap(raw_df, annot=True, fmt=".2f", cmap="Reds", ax=ax0, vmin=0, vmax=1.0,
                 cbar_kws={"label": "Pearson Correlation (r)"}, annot_kws={"weight": "bold", "size": 10})
-    axes[0].set_title("(A) Raw Conventional Cricket Metrics\nSevere Multicollinearity (r > 0.85), Double-Counting & Confounding", fontsize=10.5, fontweight="bold", color=RR_DARK, pad=12)
-    axes[0].set_ylabel("")
-    axes[0].tick_params(axis="y", labelsize=10.5, pad=5)
-    axes[0].tick_params(axis="x", labelsize=10.5, rotation=15)
+    ax0.set_title("(A) Raw Conventional Cricket Metrics\nSevere Multicollinearity (r > 0.85), Double-Counting & Confounding", fontsize=10.5, fontweight="bold", color=RR_DARK, pad=12)
+    ax0.set_ylabel("")
+    ax0.tick_params(axis="y", labelsize=10.5, pad=5)
+    ax0.tick_params(axis="x", labelsize=10.5, rotation=15)
 
-    ortho_data = pd.DataFrame({
-        "Batting RAE (Runs)": deliv.loc[deliv["is_batter_ball_faced"] == True, "bat_rae"],
-        "Batting WPV (Wickets)": deliv.loc[deliv["is_batter_ball_faced"] == True, "bat_wpv"],
-        "Bowling RSAE (Runs)": deliv.loc[deliv["is_legal_ball"] == True, "bowl_rsae"],
-        "Bowling WVA (Wickets)": deliv.loc[deliv["is_legal_ball"] == True, "bowl_wva"]
+    # Panel B1: Batting Within-Discipline Orthogonality
+    bat_mask = deliv["is_batter_ball_faced"] == True
+    bat_ortho = pd.DataFrame({
+        "Batting RAE\n(Run Value)": deliv.loc[bat_mask, "bat_rae"],
+        "Batting WPV\n(Wicket Value)": deliv.loc[bat_mask, "bat_wpv"]
     }).corr()
 
-    sns.heatmap(ortho_data, annot=True, fmt=".3f", cmap="vlag", ax=axes[1], vmin=-0.3, vmax=0.3, center=0,
-                cbar_kws={"label": "Pearson Correlation (r)"}, annot_kws={"weight": "bold", "size": 10})
-    axes[1].set_title("(B) Decomposed Residual Performance Models\nOrthogonal Components: Batting r = +0.126, Bowling r = -0.117", fontsize=10.5, fontweight="bold", color=RR_DARK, pad=12)
-    axes[1].set_ylabel("")
-    axes[1].tick_params(axis="y", labelsize=10.5, pad=5)
-    axes[1].tick_params(axis="x", labelsize=10.5, rotation=15)
+    sns.heatmap(bat_ortho, annot=True, fmt=".3f", cmap="vlag", ax=ax1, vmin=-0.3, vmax=0.3, center=0,
+                cbar_kws={"label": "Correlation (r)"}, annot_kws={"weight": "bold", "size": 11})
+    ax1.set_title("(B1) Batting Orthogonality\nRAE vs WPV: r = +0.126", fontsize=10.5, fontweight="bold", color=RR_DARK, pad=12)
+    ax1.set_ylabel("")
+    ax1.tick_params(axis="y", labelsize=10.0, pad=5)
+    ax1.tick_params(axis="x", labelsize=10.0, rotation=10)
+
+    # Panel B2: Bowling Within-Discipline Orthogonality
+    bowl_mask = deliv["is_legal_ball"] == True
+    bowl_ortho = pd.DataFrame({
+        "Bowling RSAE\n(Run Saving)": deliv.loc[bowl_mask, "bowl_rsae"],
+        "Bowling WVA\n(Wicket Taking)": deliv.loc[bowl_mask, "bowl_wva"]
+    }).corr()
+
+    sns.heatmap(bowl_ortho, annot=True, fmt=".3f", cmap="vlag", ax=ax2, vmin=-0.3, vmax=0.3, center=0,
+                cbar_kws={"label": "Correlation (r)"}, annot_kws={"weight": "bold", "size": 11})
+    ax2.set_title("(B2) Bowling Orthogonality\nRSAE vs WVA: r = -0.117", fontsize=10.5, fontweight="bold", color=RR_DARK, pad=12)
+    ax2.set_ylabel("")
+    ax2.tick_params(axis="y", labelsize=10.0, pad=5)
+    ax2.tick_params(axis="x", labelsize=10.0, rotation=10)
 
     plt.suptitle("Evidence of Zero Double-Counting: Raw Metrics Multicollinearity vs Residual Orthogonality", fontsize=14, fontweight="bold", color=RR_BLUE, y=0.99)
-    plt.subplots_adjust(left=0.15, right=0.96, top=0.88, bottom=0.15, wspace=0.35)
+    plt.subplots_adjust(left=0.08, right=0.96, top=0.88, bottom=0.15, wspace=0.35)
     save_path = os.path.join(out_dir, "fig3_collinearity_and_orthogonality.png")
     plt.savefig(save_path, bbox_inches="tight")
     plt.close()
@@ -259,7 +281,7 @@ def plot_fig4_eb_shrinkage_funnel(bat, bowl, out_dir):
     if not outlier.empty:
         o = outlier.iloc[0]
         axes[0].plot([o["effective_sample_size"], o["effective_sample_size"]], [o["shrunk_pressure_vaoe"], 148], color="#DC2626", linestyle=":", lw=1.2, alpha=0.7)
-        axes[0].annotate(f"Small-Sample Spike:\n{o['player_name']} ({o['raw_pressure_vaoe']:.0f} -> {o['shrunk_pressure_vaoe']:.1f})",
+        axes[0].annotate(f"Small-Sample Spike:\n{o['player_name']} ({o['raw_pressure_vaoe']:.1f} -> {o['shrunk_pressure_vaoe']:.1f})",
                          xy=(o["effective_sample_size"], 148),
                          xytext=(140, 130),
                          arrowprops=dict(arrowstyle="->", color="#DC2626", lw=1.8),
@@ -443,31 +465,35 @@ def plot_fig6_top10_bowlers_dashboard(top_bowl, out_dir):
 # -------------------------------------------------------------
 def plot_fig7_pressure_vs_baseline_quadrant(bat, bowl, out_dir):
     """
-    2D Clutch Quadrant scatter plot: Normal Baseline VAOE vs High-Pressure VAOE with diagonal y = x parity line.
-    Highlights "True Clutch Escalators" (Delta > 0), "All-Weather Superstars", and "Pressure Faders".
+    2D Clutch Quadrant scatter plot: Implied Shrunk Baseline VAOE vs High-Pressure VAOE with diagonal y = x parity line.
+    X-axis: Implied Shrunk Baseline = (theta_press - delta).
+    Y-axis: High-Pressure Shrunk Posterior VAOE (theta_press).
+    This guarantees that every player's vertical distance from the y = x parity line equals their exact shrunk Delta!
     """
     print("Generating Fig 7: Pressure vs Baseline Quadrant Analysis...")
     fig, axes = plt.subplots(1, 2, figsize=(16, 7.5), dpi=300)
 
+    # 1. Batters
     bat_elig = bat[bat["is_eligible_final"] == True].copy()
-    axes[0].scatter(bat_elig["normal_vaoe_per_100b"], bat_elig["shrunk_pressure_vaoe"],
+    bat_elig["implied_shrunk_baseline"] = bat_elig["shrunk_pressure_vaoe"] - bat_elig["shrunk_pressure_delta"]
+    axes[0].scatter(bat_elig["implied_shrunk_baseline"], bat_elig["shrunk_pressure_vaoe"],
                     color="#94A3B8", alpha=0.55, s=35, edgecolors="none")
 
-    diag_bat = np.linspace(-20, 45, 100)
+    diag_bat = np.linspace(-15, 50, 100)
     axes[0].plot(diag_bat, diag_bat, color=RR_GOLD, linestyle="--", lw=1.8, label="Parity Line (y = x, Zero Differential)")
 
     # Deterministic offsets eliminating all label collisions
     bat_offsets = {
-        "Vaibhav Sooryavanshi": (-18.0, 3.0),
-        "Suryakumar Yadav": (1.8, 1.8),
-        "Reeza Hendricks": (1.5, -3.2),
-        "Pathum Nissanka": (-15.0, 2.5),
-        "Ryan Rickelton": (-15.0, -3.2),
-        "Sai Sudharsan": (1.5, -3.5),
-        "Virat Kohli": (-11.0, 3.2),
-        "Kusal Mendis": (-12.0, -3.2),
-        "Yashasvi Jaiswal": (1.5, 2.8),
-        "Mohammad Rizwan": (1.8, 1.8),
+        "Vaibhav Sooryavanshi": (-18.0, 3.2),
+        "Suryakumar Yadav": (1.5, 2.2),
+        "Reeza Hendricks": (1.5, 1.8),
+        "Pathum Nissanka": (-16.0, 2.2),
+        "Ryan Rickelton": (-16.0, -2.8),
+        "Sai Sudharsan": (1.5, -3.2),
+        "Virat Kohli": (1.5, 2.2),
+        "Kusal Mendis": (1.5, -2.8),
+        "Yashasvi Jaiswal": (1.5, 2.2),
+        "Mohammad Rizwan": (1.5, -2.8),
     }
 
     top10_bat_names = list(bat_offsets.keys())
@@ -475,41 +501,45 @@ def plot_fig7_pressure_vs_baseline_quadrant(bat, bowl, out_dir):
         row = bat_elig[bat_elig["player_name"] == name]
         if not row.empty:
             r = row.iloc[0]
+            x_val = r["implied_shrunk_baseline"]
+            y_val = r["shrunk_pressure_vaoe"]
             dx, dy = bat_offsets.get(name, (1.2, 1.5))
-            axes[0].scatter(r["normal_vaoe_per_100b"], r["shrunk_pressure_vaoe"], color=RR_PINK, s=95, edgecolors=RR_DARK, zorder=5)
-            axes[0].annotate(f"{r['player_name']}", xy=(r["normal_vaoe_per_100b"], r["shrunk_pressure_vaoe"]),
-                             xytext=(r["normal_vaoe_per_100b"] + dx, r["shrunk_pressure_vaoe"] + dy),
+            axes[0].scatter(x_val, y_val, color=RR_PINK, s=95, edgecolors=RR_DARK, zorder=5)
+            axes[0].annotate(f"{r['player_name']}", xy=(x_val, y_val),
+                             xytext=(x_val + dx, y_val + dy),
                              fontsize=8.5, fontweight="bold", color=RR_DARK,
                              bbox=dict(boxstyle="round,pad=0.18", fc="#FFFFFF", ec="#E2E8F0", lw=0.6, alpha=0.85))
 
     axes[0].axhline(0, color="#CBD5E0", linestyle=":", lw=1.0)
     axes[0].axvline(0, color="#CBD5E0", linestyle=":", lw=1.0)
     axes[0].set_title(r"(A) Batters Clutch Elevation Quadrant" + "\n" + r"Top-Left: True Clutch Escalators ($\tilde{\Delta} > 0$)", fontsize=12, fontweight="bold", color=RR_DARK)
-    axes[0].set_xlabel("Normal Baseline VAOE per 100b (Runs)", fontsize=11, fontweight="bold", color=RR_SLATE)
+    axes[0].set_xlabel("Implied Shrunk Normal Baseline VAOE per 100b (Runs)", fontsize=11, fontweight="bold", color=RR_SLATE)
     axes[0].set_ylabel("High-Pressure Shrunk VAOE per 100b (Runs)", fontsize=11, fontweight="bold", color=RR_SLATE)
-    axes[0].set_xlim(-20, 85)
+    axes[0].set_xlim(-15, 55)
     axes[0].set_ylim(-15, 45)
     axes[0].legend(loc="lower right", frameon=True, framealpha=0.95, fontsize=9.5)
 
+    # 2. Bowlers
     bowl_elig = bowl[bowl["is_eligible_final"] == True].copy()
-    axes[1].scatter(bowl_elig["normal_vaoe_per_24b"], bowl_elig["shrunk_pressure_vaoe"],
+    bowl_elig["implied_shrunk_baseline"] = bowl_elig["shrunk_pressure_vaoe"] - bowl_elig["shrunk_pressure_delta"]
+    axes[1].scatter(bowl_elig["implied_shrunk_baseline"], bowl_elig["shrunk_pressure_vaoe"],
                     color="#94A3B8", alpha=0.55, s=35, edgecolors="none")
 
-    diag_bowl = np.linspace(-6, 9, 100)
+    diag_bowl = np.linspace(-3, 8, 100)
     axes[1].plot(diag_bowl, diag_bowl, color=RR_GOLD, linestyle="--", lw=1.8, label="Parity Line (y = x, Zero Differential)")
 
     # Deterministic offsets eliminating all label collisions
     bowl_offsets = {
-        "Lockie Ferguson": (0.35, 0.45),
-        "Umran Malik": (-2.1, 0.45),
-        "Mahedi Hasan": (0.35, -0.1),
-        "Shaheen Afridi": (-2.0, 0.2),
-        "Josh Hazlewood": (0.35, 0.35),
-        "Nathan Ellis": (0.35, -0.45),
-        "Matheesha Pathirana": (0.35, 0.2),
-        "Krunal Pandya": (-2.2, -0.45),
-        "Axar Patel": (-1.3, 0.65),
-        "Mitchell Santner": (0.35, -0.55),
+        "Lockie Ferguson": (0.25, 0.40),
+        "Umran Malik": (-1.8, 0.40),
+        "Mahedi Hasan": (0.25, -0.40),
+        "Shaheen Afridi": (-1.8, 0.20),
+        "Josh Hazlewood": (0.25, 0.35),
+        "Nathan Ellis": (0.25, -0.40),
+        "Matheesha Pathirana": (0.25, 0.25),
+        "Krunal Pandya": (-1.8, -0.40),
+        "Axar Patel": (-1.6, 0.40),
+        "Mitchell Santner": (0.25, -0.35),
     }
 
     top10_bowl_names = list(bowl_offsets.keys())
@@ -517,23 +547,25 @@ def plot_fig7_pressure_vs_baseline_quadrant(bat, bowl, out_dir):
         row = bowl_elig[bowl_elig["player_name"] == name]
         if not row.empty:
             r = row.iloc[0]
+            x_val = r["implied_shrunk_baseline"]
+            y_val = r["shrunk_pressure_vaoe"]
             dx, dy = bowl_offsets.get(name, (0.3, 0.3))
-            axes[1].scatter(r["normal_vaoe_per_24b"], r["shrunk_pressure_vaoe"], color=RR_BLUE, s=95, edgecolors=RR_DARK, zorder=5)
-            axes[1].annotate(f"{r['player_name']}", xy=(r["normal_vaoe_per_24b"], r["shrunk_pressure_vaoe"]),
-                             xytext=(r["normal_vaoe_per_24b"] + dx, r["shrunk_pressure_vaoe"] + dy),
+            axes[1].scatter(x_val, y_val, color=RR_BLUE, s=95, edgecolors=RR_DARK, zorder=5)
+            axes[1].annotate(f"{r['player_name']}", xy=(x_val, y_val),
+                             xytext=(x_val + dx, y_val + dy),
                              fontsize=8.5, fontweight="bold", color=RR_DARK,
                              bbox=dict(boxstyle="round,pad=0.18", fc="#FFFFFF", ec="#E2E8F0", lw=0.6, alpha=0.85))
 
     axes[1].axhline(0, color="#CBD5E0", linestyle=":", lw=1.0)
     axes[1].axvline(0, color="#CBD5E0", linestyle=":", lw=1.0)
     axes[1].set_title(r"(B) Bowlers Clutch Elevation Quadrant" + "\n" + r"Top-Left: True Clutch Escalators ($\tilde{\Delta} > 0$)", fontsize=12, fontweight="bold", color=RR_DARK)
-    axes[1].set_xlabel("Normal Baseline VAOE per 24b (Runs Saved)", fontsize=11, fontweight="bold", color=RR_SLATE)
+    axes[1].set_xlabel("Implied Shrunk Normal Baseline VAOE per 24b (Runs Saved)", fontsize=11, fontweight="bold", color=RR_SLATE)
     axes[1].set_ylabel("High-Pressure Shrunk VAOE per 24b (Runs Saved)", fontsize=11, fontweight="bold", color=RR_SLATE)
-    axes[1].set_xlim(-5, 12)
+    axes[1].set_xlim(-3, 8)
     axes[1].set_ylim(-2, 10)
     axes[1].legend(loc="lower right", frameon=True, framealpha=0.95, fontsize=9.5)
 
-    plt.suptitle("Clutch Elevation Matrix: Normal Baseline vs High-Pressure Crucible Performance", fontsize=14, fontweight="bold", color=RR_BLUE, y=1.01)
+    plt.suptitle("Clutch Elevation Matrix: Implied Shrunk Baseline vs High-Pressure Crucible Performance", fontsize=14, fontweight="bold", color=RR_BLUE, y=1.01)
     plt.tight_layout()
     save_path = os.path.join(out_dir, "fig7_pressure_vs_baseline_quadrant.png")
     plt.savefig(save_path, bbox_inches="tight")
