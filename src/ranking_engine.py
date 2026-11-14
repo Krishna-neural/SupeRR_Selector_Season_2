@@ -195,9 +195,20 @@ def build_batter_rankings(bat_stats, pu, bat_ext_agg, bat_teams_str):
     bat_pu["crr_z_composite"] = np.nan
     bat_pu["final_crr_score_100"] = np.nan
     bat_pu["rank_crr"] = np.nan
+    bat_pu["z_theta"] = np.nan
+    bat_pu["z_lcb"] = np.nan
+    bat_pu["z_extreme"] = np.nan
+    bat_pu["z_delta"] = np.nan
+    bat_pu["z_consistency"] = np.nan
+
     bat_pu.loc[bat_pu["is_eligible_final"], "crr_z_composite"] = np.round(crr_comp, 4)
     bat_pu.loc[bat_pu["is_eligible_final"], "final_crr_score_100"] = np.round(crr_100, 2)
     bat_pu.loc[bat_pu["is_eligible_final"], "rank_crr"] = crr_comp.rank(ascending=False).astype(int)
+    bat_pu.loc[bat_pu["is_eligible_final"], "z_theta"] = np.round(z_f3_vaoe, 4)
+    bat_pu.loc[bat_pu["is_eligible_final"], "z_lcb"] = np.round(z_f3_lcb, 4)
+    bat_pu.loc[bat_pu["is_eligible_final"], "z_extreme"] = np.round(z_f3_ext, 4)
+    bat_pu.loc[bat_pu["is_eligible_final"], "z_delta"] = np.round(z_f3_delta, 4)
+    bat_pu.loc[bat_pu["is_eligible_final"], "z_consistency"] = np.round(z_f3_cons, 4)
 
     # Merge auxiliary tactical details from bat_stats
     bat_pu["teams_represented"] = bat_pu["player_id"].map(lambda x: bat_teams_str.get(x, "Unknown"))
@@ -287,9 +298,20 @@ def build_bowler_rankings(bowl_stats, pu, bowl_ext_agg, death_pct_map, bowl_team
     bowl_pu["crr_z_composite"] = np.nan
     bowl_pu["final_crr_score_100"] = np.nan
     bowl_pu["rank_crr"] = np.nan
+    bowl_pu["z_theta"] = np.nan
+    bowl_pu["z_lcb"] = np.nan
+    bowl_pu["z_extreme"] = np.nan
+    bowl_pu["z_delta"] = np.nan
+    bowl_pu["z_consistency"] = np.nan
+
     bowl_pu.loc[bowl_pu["is_eligible_final"], "crr_z_composite"] = np.round(crr_comp, 4)
     bowl_pu.loc[bowl_pu["is_eligible_final"], "final_crr_score_100"] = np.round(crr_100, 2)
     bowl_pu.loc[bowl_pu["is_eligible_final"], "rank_crr"] = crr_comp.rank(ascending=False).astype(int)
+    bowl_pu.loc[bowl_pu["is_eligible_final"], "z_theta"] = np.round(z_f3_vaoe, 4)
+    bowl_pu.loc[bowl_pu["is_eligible_final"], "z_lcb"] = np.round(z_f3_lcb, 4)
+    bowl_pu.loc[bowl_pu["is_eligible_final"], "z_extreme"] = np.round(z_f3_ext, 4)
+    bowl_pu.loc[bowl_pu["is_eligible_final"], "z_delta"] = np.round(z_f3_delta, 4)
+    bowl_pu.loc[bowl_pu["is_eligible_final"], "z_consistency"] = np.round(z_f3_cons, 4)
 
     bowl_pu["teams_represented"] = bowl_pu["player_id"].map(lambda x: bowl_teams_str.get(x, "Unknown"))
 
