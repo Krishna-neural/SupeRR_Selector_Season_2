@@ -46,7 +46,9 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
-# IDE and Editor files
+# Temporary & backup files
+*_backup.csv
+*.bak
 .idea/
 .vscode/
 *.swp

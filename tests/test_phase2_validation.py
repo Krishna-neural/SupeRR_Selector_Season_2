@@ -9,7 +9,7 @@ import pytest
 import pandas as pd
 import numpy as np
 
-WORKSPACE_DIR = r"F:\SupeRR_Selector_Season_2"
+WORKSPACE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROC_DIR = os.path.join(WORKSPACE_DIR, "Data", "processed")
 RAW_DIR = os.path.join(WORKSPACE_DIR, "Data", "Raw")
 

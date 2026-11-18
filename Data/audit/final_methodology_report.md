@@ -17,16 +17,16 @@ This research report presents the definitive mathematical and statistical method
 ### 1.1 Official Top 10 Batters Under Pressure (Unstop Dropdown Selections)
 | Rank | Player ID | Player Name | Primary Role | Press Balls ($N_{\text{eff}}$) | Press SR (Exp) | Shrunk VAOE | $	ext{LCB}_{80}$ Floor | Extreme VAOE | Clutch $\Delta$ | Clutch Win % | 95% Boot CI | Final CRR |
 | :---: | :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **#1** | `50284` | **Vaibhav Sooryavanshi** | Top Order (1-3) | 260 (319) | 217.6 (145.6) | +35.59 | +0.94 | +36.53 | +18.80 | -8.5 | 70.6% | [-1.6, 70.7] | 74.8% | **100.00** |
-| **#2** | `1699` | **Suryakumar Yadav** | Middle Order (4-5) | 760 (975) | 158.8 (140.1) | +13.56 | +16.61 | +30.17 | +22.43 | +5.1 | 76.5% | [15.2, 43.8] | 75.4% | **99.20** |
-| **#3** | `768` | **Reeza Hendricks** | Top Order (1-3) | 301 (371) | 164.1 (144.7) | +11.68 | +14.00 | +25.68 | +13.61 | +18.5 | 75.0% | [1.0, 41.0] | 51.6% | **97.72** |
-| **#4** | `6931` | **Pathum Nissanka** | Top Order (1-3) | 682 (870) | 143.7 (127.4) | +11.06 | +15.44 | +26.50 | +16.90 | +23.8 | 72.2% | [8.8, 42.5] | 56.2% | **96.51** |
-| **#5** | `4007` | **Ryan Rickelton** | Top Order (1-3) | 246 (312) | 157.3 (142.6) | +9.07 | +15.36 | +24.43 | +10.80 | +23.4 | 81.2% | [-3.2, 43.9] | 43.9% | **96.25** |
-| **#6** | `23450` | **Sai Sudharsan** | Top Order (1-3) | 450 (590) | 151.8 (151.3) | -3.02 | +24.35 | +21.33 | +12.08 | +3.9 | 82.6% | [3.4, 33.6] | 28.6% | **91.77** |
-| **#7** | `3672` | **Kusal Mendis** | Top Order (1-3) | 490 (619) | 130.3 (126.2) | +2.18 | +16.48 | +18.66 | +8.37 | +16.5 | 71.4% | [-1.6, 35.0] | 22.5% | **90.62** |
-| **#8** | `6819` | **Yashasvi Jaiswal** | Top Order (1-3) | 588 (755) | 165.9 (145.5) | +13.82 | +7.42 | +21.24 | +9.51 | +11.7 | 75.8% | [-2.4, 38.6] | 32.2% | **90.49** |
-| **#9** | `47` | **Virat Kohli** | Top Order (1-3) | 667 (847) | 146.6 (148.7) | -2.23 | +23.84 | +21.61 | +13.15 | +3.4 | 70.3% | [6.0, 36.6] | 31.5% | **90.16** |
-| **#10** | `3024` | **Mohammad Rizwan** | Top Order (1-3) | 404 (525) | 118.3 (134.2) | -6.67 | +26.62 | +19.95 | +11.98 | -2.4 | 73.7% | [0.8, 34.2] | 24.1% | **88.72** |
+| **#1** | `50284` | **Vaibhav Sooryavanshi** | Top Order (1-3) | 260 (319) | 217.6 (145.6) | +35.55 | +0.94 | +36.49 | +18.76 | -8.5 | 70.6% | [-1.7, 70.7] | 74.8% | **100.00** |
+| **#2** | `1699` | **Suryakumar Yadav** | Middle Order (4-5) | 760 (975) | 158.8 (140.1) | +13.54 | +16.61 | +30.15 | +22.41 | +5.2 | 76.5% | [15.2, 43.8] | 75.7% | **99.29** |
+| **#3** | `768` | **Reeza Hendricks** | Top Order (1-3) | 301 (371) | 164.1 (144.4) | +11.83 | +14.00 | +25.83 | +13.76 | +18.5 | 75.0% | [1.1, 41.2] | 52.2% | **97.95** |
+| **#4** | `6931` | **Pathum Nissanka** | Top Order (1-3) | 682 (870) | 143.7 (127.5) | +11.01 | +15.44 | +26.45 | +16.85 | +23.7 | 72.2% | [8.9, 42.4] | 56.0% | **96.57** |
+| **#5** | `4007` | **Ryan Rickelton** | Top Order (1-3) | 246 (312) | 157.3 (142.5) | +9.15 | +15.36 | +24.51 | +10.88 | +23.4 | 81.2% | [-3.1, 43.9] | 44.2% | **96.47** |
+| **#6** | `23450` | **Sai Sudharsan** | Top Order (1-3) | 450 (590) | 151.8 (151.4) | -3.08 | +24.35 | +21.27 | +12.02 | +3.9 | 82.6% | [3.3, 33.5] | 28.4% | **91.81** |
+| **#7** | `3672` | **Kusal Mendis** | Top Order (1-3) | 490 (619) | 130.3 (126.2) | +2.14 | +16.48 | +18.62 | +8.33 | +16.3 | 71.4% | [-1.7, 34.9] | 22.1% | **90.63** |
+| **#8** | `6819` | **Yashasvi Jaiswal** | Top Order (1-3) | 588 (755) | 165.9 (145.6) | +13.77 | +7.42 | +21.19 | +9.46 | +11.7 | 75.8% | [-2.5, 38.6] | 32.1% | **90.52** |
+| **#9** | `47` | **Virat Kohli** | Top Order (1-3) | 667 (847) | 146.6 (148.9) | -2.38 | +23.84 | +21.46 | +13.00 | +3.4 | 70.3% | [5.9, 36.4] | 30.8% | **90.09** |
+| **#10** | `3024` | **Mohammad Rizwan** | Top Order (1-3) | 404 (525) | 118.3 (134.3) | -6.73 | +26.62 | +19.89 | +11.92 | -2.3 | 73.7% | [0.8, 34.1] | 24.0% | **88.72** |
 
 ### 1.2 Official Top 10 Bowlers Under Pressure (Unstop Dropdown Selections)
 | Rank | Player ID | Player Name | Discipline | Press Balls ($N_{\text{eff}}$) | Press Econ (Exp) | Shrunk VAOE | $	ext{LCB}_{80}$ Floor | Extreme VAOE | Clutch $\Delta$ | Death % | 95% Boot CI | Final CRR |
@@ -255,54 +255,54 @@ Standardized Scaling: $\text{Score}_{100} = 15.0 + 85.0 \cdot \frac{Z - Z_{\min}
 
 ### Individual Player Dossiers:
 1. **#1 Vaibhav Sooryavanshi (CRR: 100.00 | ID: 50284 | India, India A, Rajasthan Royals | 260b):**
-   - *Metrics:* HP Balls: 260 (319 N_eff) | HP SR: 217.63 (Exp: 145.56, Res: +72.07) | Shrunk VAOE: +36.53 | LCB_80: +18.80 | Extreme: +42.5 | Delta: -8.5 | Clutch Win%: 70.6% | 95% Boot CI: [-1.59, 70.72].
-   - *Tactical Signature:* +74.7 vs Pace / +104.5 vs Spin | Top Stroke: Pull shot (Off: 44%, Leg: 56%). Exceptional scoring rate dispatches high-velocity pace behind square at will across multi-season campaigns.
-   - *Signature Match Walkthroughs:* 96 off 47b vs GT (Match 50944, VAOE +50.9, SR 204.3); 97 off 29b vs SRH (Match 50943, VAOE +48.6, SR 334.5); 78 off 26b vs RCB (Match 50140, VAOE +46.5, SR 300.0)
+   - *Metrics:* HP Balls: 260 (319 N_eff) | HP SR: 217.63 (Exp: 145.63, Res: +72.00) | Shrunk VAOE: +36.49 | LCB_80: +18.76 | Extreme: +42.5 | Delta: -8.5 | Clutch Win%: 70.6% | 95% Boot CI: [-1.68, 70.69].
+   - *Tactical Signature:* +74.6 vs Pace / +104.5 vs Spin | Top Stroke: Pull shot (Off: 44%, Leg: 56%). Exceptional scoring rate dispatches high-velocity pace behind square at will across multi-season campaigns.
+   - *Signature Match Walkthroughs:* 96 off 47b vs GT (Match 50944, VAOE +50.9, SR 204.3); 97 off 29b vs SRH (Match 50943, VAOE +48.7, SR 334.5); 78 off 26b vs RCB (Match 50140, VAOE +46.4, SR 300.0)
    - *Front-Office Scouting Verdict:* Generational prodigy with verified multi-season performance (95 high-pressure balls in 2025 across IPL & Asia Cup Rising Stars; 165 in 2026 across IPL & India T20Is; 260 total). Highest raw scoring ceiling under pressure in modern T20 cricket.
-2. **#2 Suryakumar Yadav (CRR: 99.20 | ID: 1699 | India, Mumbai Indians | 760b):**
-   - *Metrics:* HP Balls: 760 (975 N_eff) | HP SR: 158.82 (Exp: 140.06, Res: +18.76) | Shrunk VAOE: +30.17 | LCB_80: +22.43 | Extreme: +26.0 | Delta: +5.1 | Clutch Win%: 76.5% | 95% Boot CI: [15.21, 43.83].
-   - *Tactical Signature:* +33.5 vs Pace / +58.5 vs Spin | Top Stroke: Flick (Off: 53%, Leg: 47%). Unrivaled 360-degree boundary access via late flick, lap scoop, and deep backward point ramp.
-   - *Signature Match Walkthroughs:* 66 off 31b vs PBKS (Match 20225, VAOE +32.7, SR 212.9); 102 off 51b vs SRH (Match 31273, VAOE +32.7, SR 200.0); 69 off 36b vs AUS (Match 17396, VAOE +29.4, SR 191.7)
+2. **#2 Suryakumar Yadav (CRR: 99.29 | ID: 1699 | India, Mumbai Indians | 760b):**
+   - *Metrics:* HP Balls: 760 (975 N_eff) | HP SR: 158.82 (Exp: 140.11, Res: +18.71) | Shrunk VAOE: +30.15 | LCB_80: +22.41 | Extreme: +25.9 | Delta: +5.2 | Clutch Win%: 76.5% | 95% Boot CI: [15.16, 43.77].
+   - *Tactical Signature:* +33.4 vs Pace / +58.5 vs Spin | Top Stroke: Flick (Off: 53%, Leg: 47%). Unrivaled 360-degree boundary access via late flick, lap scoop, and deep backward point ramp.
+   - *Signature Match Walkthroughs:* 66 off 31b vs PBKS (Match 20225, VAOE +32.9, SR 212.9); 102 off 51b vs SRH (Match 31273, VAOE +32.6, SR 200.0); 83 off 44b vs WI (Match 24352, VAOE +29.4, SR 188.6)
    - *Front-Office Scouting Verdict:* The gold-standard multi-season anchor. Highest LCB80 floor among the 145 qualified batters (+22.43), proving his baseline floor beats others' ceilings.
-3. **#3 Reeza Hendricks (CRR: 97.72 | ID: 768 | South Africa | 301b):**
-   - *Metrics:* HP Balls: 301 (371 N_eff) | HP SR: 164.11 (Exp: 144.73, Res: +19.38) | Shrunk VAOE: +25.68 | LCB_80: +13.61 | Extreme: +36.5 | Delta: +18.5 | Clutch Win%: 75.0% | 95% Boot CI: [0.97, 40.99].
-   - *Tactical Signature:* +51.4 vs Pace / +25.8 vs Spin | Top Stroke: Cover Drive (Off: 55%, Leg: 45%). High clutch delta (+18.5) providing international run-chase anchor security and low dot rate.
-   - *Signature Match Walkthroughs:* 117 off 63b vs PAK (Match 38796, VAOE +42.0, SR 185.7); 68 off 28b vs WI (Match 19960, VAOE +31.2, SR 242.9); 83 off 44b vs WI (Match 19961, VAOE +25.9, SR 188.6)
+3. **#3 Reeza Hendricks (CRR: 97.95 | ID: 768 | South Africa | 301b):**
+   - *Metrics:* HP Balls: 301 (371 N_eff) | HP SR: 164.11 (Exp: 144.43, Res: +19.68) | Shrunk VAOE: +25.83 | LCB_80: +13.76 | Extreme: +36.7 | Delta: +18.5 | Clutch Win%: 75.0% | 95% Boot CI: [1.05, 41.21].
+   - *Tactical Signature:* +51.7 vs Pace / +26.0 vs Spin | Top Stroke: Cover Drive (Off: 55%, Leg: 45%). High clutch delta (+18.5) providing international run-chase anchor security and low dot rate.
+   - *Signature Match Walkthroughs:* 117 off 63b vs PAK (Match 38796, VAOE +42.2, SR 185.7); 68 off 28b vs WI (Match 19960, VAOE +31.4, SR 242.9); 83 off 44b vs WI (Match 19961, VAOE +26.1, SR 188.6)
    - *Front-Office Scouting Verdict:* Remarkable clutch escalator who elevates strike rate by +28.7 points under tournament pressure. Prime realistic overseas target.
-4. **#4 Pathum Nissanka (CRR: 96.51 | ID: 6931 | Delhi Capitals, Sri Lanka | 682b):**
-   - *Metrics:* HP Balls: 682 (870 N_eff) | HP SR: 143.68 (Exp: 127.41, Res: +16.27) | Shrunk VAOE: +26.50 | LCB_80: +16.90 | Extreme: +18.2 | Delta: +23.8 | Clutch Win%: 72.2% | 95% Boot CI: [8.78, 42.47].
-   - *Tactical Signature:* +47.9 vs Pace / +17.8 vs Spin | Top Stroke: Pull shot (Off: 47%, Leg: 53%). Subcontinent anchor thriving under spin and variable bounce with sharp pull stroke.
-   - *Signature Match Walkthroughs:* 107 off 58b vs IND (Match 45512, VAOE +44.1, SR 184.5); 60 off 30b vs AFG (Match 29926, VAOE +43.7, SR 200.0); 52 off 37b vs IND (Match 16661, VAOE +35.6, SR 140.5)
+4. **#4 Pathum Nissanka (CRR: 96.57 | ID: 6931 | Delhi Capitals, Sri Lanka | 682b):**
+   - *Metrics:* HP Balls: 682 (870 N_eff) | HP SR: 143.68 (Exp: 127.47, Res: +16.21) | Shrunk VAOE: +26.45 | LCB_80: +16.85 | Extreme: +18.1 | Delta: +23.7 | Clutch Win%: 72.2% | 95% Boot CI: [8.86, 42.44].
+   - *Tactical Signature:* +47.8 vs Pace / +17.8 vs Spin | Top Stroke: Pull shot (Off: 47%, Leg: 53%). Subcontinent anchor thriving under spin and variable bounce with sharp pull stroke.
+   - *Signature Match Walkthroughs:* 107 off 58b vs IND (Match 45512, VAOE +44.0, SR 184.5); 60 off 30b vs AFG (Match 29926, VAOE +43.8, SR 200.0); 52 off 37b vs IND (Match 16661, VAOE +35.6, SR 140.5)
    - *Front-Office Scouting Verdict:* Prodigious clutch delta (+23.8) across 682 pressure balls. Heavy volume anchor offering perfect stability for Indian conditions.
-5. **#5 Ryan Rickelton (CRR: 96.25 | ID: 4007 | Mumbai Indians, South Africa | 246b):**
-   - *Metrics:* HP Balls: 246 (312 N_eff) | HP SR: 157.35 (Exp: 142.62, Res: +14.73) | Shrunk VAOE: +24.43 | LCB_80: +10.80 | Extreme: +23.6 | Delta: +23.4 | Clutch Win%: 81.2% | 95% Boot CI: [-3.18, 43.87].
-   - *Tactical Signature:* +26.1 vs Pace / +55.8 vs Spin | Top Stroke: Worked (Off: 47%, Leg: 53%). Explosive square cut and pull. High boundary percentage in Powerplay field restrictions.
-   - *Signature Match Walkthroughs:* 83 off 32b vs LSG (Match 50368, VAOE +34.1, SR 259.4); 81 off 43b vs KKR (Match 50126, VAOE +23.3, SR 188.4); 76 off 48b vs IRE (Match 37014, VAOE +19.3, SR 158.3)
+5. **#5 Ryan Rickelton (CRR: 96.47 | ID: 4007 | Mumbai Indians, South Africa | 246b):**
+   - *Metrics:* HP Balls: 246 (312 N_eff) | HP SR: 157.35 (Exp: 142.46, Res: +14.89) | Shrunk VAOE: +24.51 | LCB_80: +10.88 | Extreme: +23.7 | Delta: +23.4 | Clutch Win%: 81.2% | 95% Boot CI: [-3.11, 43.90].
+   - *Tactical Signature:* +26.2 vs Pace / +55.9 vs Spin | Top Stroke: Worked (Off: 47%, Leg: 53%). Explosive square cut and pull. High boundary percentage in Powerplay field restrictions.
+   - *Signature Match Walkthroughs:* 83 off 32b vs LSG (Match 50368, VAOE +34.1, SR 259.4); 81 off 43b vs KKR (Match 50126, VAOE +23.2, SR 188.4); 76 off 48b vs IRE (Match 37014, VAOE +19.4, SR 158.3)
    - *Front-Office Scouting Verdict:* Elite dual-role wicketkeeper-batter with an 81.2% clutch match success rate. Perfect dynamic target to unlock RR squad balance.
-6. **#6 Sai Sudharsan (CRR: 91.77 | ID: 23450 | Gujarat Titans | 450b):**
-   - *Metrics:* HP Balls: 450 (590 N_eff) | HP SR: 151.75 (Exp: 151.28, Res: +0.47) | Shrunk VAOE: +21.33 | LCB_80: +12.08 | Extreme: +23.0 | Delta: +3.9 | Clutch Win%: 82.6% | 95% Boot CI: [3.37, 33.64].
-   - *Tactical Signature:* +31.3 vs Pace / +59.5 vs Spin | Top Stroke: Worked (Off: 45%, Leg: 55%). Classical off-side strokeplay maintaining exceptional composure when required rate exceeds 11.0.
-   - *Signature Match Walkthroughs:* 108 off 61b vs DC (Match 40755, VAOE +31.7, SR 177.1); 73 off 44b vs RR (Match 50133, VAOE +28.4, SR 165.9); 58 off 32b vs RR (Match 50944, VAOE +27.2, SR 181.2)
+6. **#6 Sai Sudharsan (CRR: 91.81 | ID: 23450 | Gujarat Titans | 450b):**
+   - *Metrics:* HP Balls: 450 (590 N_eff) | HP SR: 151.75 (Exp: 151.37, Res: +0.38) | Shrunk VAOE: +21.27 | LCB_80: +12.02 | Extreme: +23.0 | Delta: +3.9 | Clutch Win%: 82.6% | 95% Boot CI: [3.32, 33.54].
+   - *Tactical Signature:* +31.2 vs Pace / +59.4 vs Spin | Top Stroke: Worked (Off: 45%, Leg: 55%). Classical off-side strokeplay maintaining exceptional composure when required rate exceeds 11.0.
+   - *Signature Match Walkthroughs:* 108 off 61b vs DC (Match 40755, VAOE +31.7, SR 177.1); 73 off 44b vs RR (Match 50133, VAOE +28.3, SR 165.9); 58 off 32b vs RR (Match 50944, VAOE +27.3, SR 181.2)
    - *Front-Office Scouting Verdict:* Highest clutch success rate in corpus (82.6%). Tactical accumulator who avoids dot balls without taking reckless dismissal risks.
-7. **#7 Kusal Mendis (CRR: 90.62 | ID: 3672 | Gujarat Titans, Sri Lanka | 490b):**
-   - *Metrics:* HP Balls: 490 (619 N_eff) | HP SR: 130.28 (Exp: 126.20, Res: +4.08) | Shrunk VAOE: +18.66 | LCB_80: +8.37 | Extreme: +31.5 | Delta: +16.5 | Clutch Win%: 71.4% | 95% Boot CI: [-1.62, 35.02].
-   - *Tactical Signature:* +15.8 vs Pace / +47.5 vs Spin | Top Stroke: Pull shot (Off: 47%, Leg: 53%). Slog sweep and pick-up pull thriving in extreme tournament pressure states.
-   - *Signature Match Walkthroughs:* 69 off 58b vs AUS (Match 13616, VAOE +36.1, SR 119.0); 74 off 52b vs AFG (Match 45505, VAOE +34.5, SR 142.3); 60 off 37b vs BAN (Match 16657, VAOE +33.9, SR 162.2)
+7. **#7 Kusal Mendis (CRR: 90.63 | ID: 3672 | Gujarat Titans, Sri Lanka | 490b):**
+   - *Metrics:* HP Balls: 490 (619 N_eff) | HP SR: 130.28 (Exp: 126.24, Res: +4.04) | Shrunk VAOE: +18.62 | LCB_80: +8.33 | Extreme: +31.5 | Delta: +16.3 | Clutch Win%: 71.4% | 95% Boot CI: [-1.67, 34.91].
+   - *Tactical Signature:* +15.7 vs Pace / +47.5 vs Spin | Top Stroke: Pull shot (Off: 47%, Leg: 53%). Slog sweep and pick-up pull thriving in extreme tournament pressure states.
+   - *Signature Match Walkthroughs:* 69 off 58b vs AUS (Match 13616, VAOE +36.1, SR 119.0); 74 off 52b vs AFG (Match 45505, VAOE +34.8, SR 142.3); 60 off 37b vs BAN (Match 16657, VAOE +33.8, SR 162.2)
    - *Front-Office Scouting Verdict:* High-crucible specialist (+31.51 extreme VAOE) with proven big-match knockout pedigree across Asia Cups and World Cups.
-8. **#8 Yashasvi Jaiswal (CRR: 90.49 | ID: 6819 | India, Rajasthan Royals | 588b):**
-   - *Metrics:* HP Balls: 588 (755 N_eff) | HP SR: 165.95 (Exp: 145.48, Res: +20.47) | Shrunk VAOE: +21.24 | LCB_80: +9.51 | Extreme: +22.2 | Delta: +11.7 | Clutch Win%: 75.8% | 95% Boot CI: [-2.43, 38.65].
-   - *Tactical Signature:* +33.4 vs Pace / +6.2 vs Spin | Top Stroke: Cover Drive (Off: 61%, Leg: 39%). Destructive left-handed boundary hitter who attacks express pace relentlessly in Powerplay.
-   - *Signature Match Walkthroughs:* 67 off 40b vs SRH (Match 31268, VAOE +31.9, SR 167.5); 68 off 41b vs PBKS (Match 14146, VAOE +31.8, SR 165.8); 84 off 51b vs WI (Match 24353, VAOE +25.9, SR 164.7)
+8. **#8 Yashasvi Jaiswal (CRR: 90.52 | ID: 6819 | India, Rajasthan Royals | 588b):**
+   - *Metrics:* HP Balls: 588 (755 N_eff) | HP SR: 165.95 (Exp: 145.56, Res: +20.39) | Shrunk VAOE: +21.19 | LCB_80: +9.46 | Extreme: +22.1 | Delta: +11.7 | Clutch Win%: 75.8% | 95% Boot CI: [-2.45, 38.58].
+   - *Tactical Signature:* +33.3 vs Pace / +6.2 vs Spin | Top Stroke: Cover Drive (Off: 61%, Leg: 39%). Destructive left-handed boundary hitter who attacks express pace relentlessly in Powerplay.
+   - *Signature Match Walkthroughs:* 67 off 40b vs SRH (Match 31268, VAOE +31.7, SR 167.5); 68 off 41b vs PBKS (Match 14146, VAOE +31.7, SR 165.8); 84 off 51b vs WI (Match 24353, VAOE +26.0, SR 164.7)
    - *Front-Office Scouting Verdict:* Current RR franchise core. Pair with Sooryavanshi for a generational, fear-free opening pair dominating pace bowling.
-9. **#9 Virat Kohli (CRR: 90.16 | ID: 47 | India, Royal Challengers Bengaluru | 667b):**
-   - *Metrics:* HP Balls: 667 (847 N_eff) | HP SR: 146.58 (Exp: 148.66, Res: -2.08) | Shrunk VAOE: +21.61 | LCB_80: +13.15 | Extreme: +27.0 | Delta: +3.4 | Clutch Win%: 70.3% | 95% Boot CI: [6.03, 36.63].
-   - *Tactical Signature:* +14.8 vs Pace / +26.2 vs Spin | Top Stroke: Worked (Off: 42%, Leg: 58%). Metronomic chase master pacing run chases with pristine running between wickets.
-   - *Signature Match Walkthroughs:* 70 off 44b vs GT (Match 31263, VAOE +38.0, SR 159.1); 77 off 49b vs PBKS (Match 30061, VAOE +33.1, SR 157.1); 81 off 44b vs GT (Match 50355, VAOE +30.4, SR 184.1)
+9. **#9 Virat Kohli (CRR: 90.09 | ID: 47 | India, Royal Challengers Bengaluru | 667b):**
+   - *Metrics:* HP Balls: 667 (847 N_eff) | HP SR: 146.58 (Exp: 148.88, Res: -2.30) | Shrunk VAOE: +21.46 | LCB_80: +13.00 | Extreme: +26.8 | Delta: +3.4 | Clutch Win%: 70.3% | 95% Boot CI: [5.91, 36.43].
+   - *Tactical Signature:* +14.6 vs Pace / +26.0 vs Spin | Top Stroke: Worked (Off: 42%, Leg: 58%). Metronomic chase master pacing run chases with pristine running between wickets.
+   - *Signature Match Walkthroughs:* 70 off 44b vs GT (Match 31263, VAOE +37.9, SR 159.1); 77 off 49b vs PBKS (Match 30061, VAOE +32.9, SR 157.1); 81 off 44b vs GT (Match 50355, VAOE +30.3, SR 184.1)
    - *Front-Office Scouting Verdict:* The historical benchmark for international chase execution. Solid LCB80 certainty floor (+13.15) validating model calibration.
 10. **#10 Mohammad Rizwan (CRR: 88.72 | ID: 3024 | Pakistan | 404b):**
-   - *Metrics:* HP Balls: 404 (525 N_eff) | HP SR: 118.34 (Exp: 134.21, Res: -15.87) | Shrunk VAOE: +19.95 | LCB_80: +11.98 | Extreme: +27.9 | Delta: -2.4 | Clutch Win%: 73.7% | 95% Boot CI: [0.84, 34.18].
-   - *Tactical Signature:* +34.9 vs Pace / -1.1 vs Spin | Top Stroke: Worked (Off: 37%, Leg: 63%). Master of collapse mitigation and resource preservation in early wickets down states.
-   - *Signature Match Walkthroughs:* 88 off 51b vs ENG (Match 17554, VAOE +38.1, SR 172.6); 75 off 46b vs IRE (Match 32291, VAOE +28.9, SR 163.0); 71 off 51b vs IND (Match 16660, VAOE +27.7, SR 139.2)
+   - *Metrics:* HP Balls: 404 (525 N_eff) | HP SR: 118.34 (Exp: 134.30, Res: -15.96) | Shrunk VAOE: +19.89 | LCB_80: +11.92 | Extreme: +27.9 | Delta: -2.3 | Clutch Win%: 73.7% | 95% Boot CI: [0.81, 34.15].
+   - *Tactical Signature:* +34.8 vs Pace / -1.2 vs Spin | Top Stroke: Worked (Off: 37%, Leg: 63%). Master of collapse mitigation and resource preservation in early wickets down states.
+   - *Signature Match Walkthroughs:* 88 off 51b vs ENG (Match 17554, VAOE +38.1, SR 172.6); 75 off 46b vs IRE (Match 32291, VAOE +28.9, SR 163.0); 71 off 51b vs IND (Match 16660, VAOE +27.6, SR 139.2)
    - *Front-Office Scouting Verdict:* High-floor anchor delivering +27.91 extreme crucible VAOE. Preserves team equity in severe collapse situations.
 
 ---
@@ -383,11 +383,11 @@ Standardized Scaling: $\text{Score}_{100} = 15.0 + 85.0 \cdot \frac{Z - Z_{\min}
 ### Table 14.1: Honourable Mentions Table (Ranks 11–15 for Batters & Bowlers)
 | Discipline | Rank | Player Name | CRR | HP Balls | Shrunk VAOE | Forensic Analytical Explanation |
 | :--- | :---: | :--- | :---: | :---: | :---: | :--- |
-| **Batter** | **#11** | Heinrich Klaasen | 87.58 | 403 | +20.79 runs/100b | High-performing clutch contributor regularized by prior. |
-| **Batter** | **#12** | Namboori Tilak Varma | 86.65 | 787 | +18.85 runs/100b | High-performing clutch contributor regularized by prior. |
-| **Batter** | **#13** | Andre Russell | 85.64 | 255 | +20.01 runs/100b | High-performing clutch contributor regularized by prior. |
-| **Batter** | **#14** | Daryl Mitchell | 85.00 | 269 | +17.99 runs/100b | High-performing clutch contributor regularized by prior. |
-| **Batter** | **#15** | Kamindu Mendis | 84.31 | 246 | +12.61 runs/100b | High-performing clutch contributor regularized by prior. |
+| **Batter** | **#11** | Heinrich Klaasen | 87.57 | 403 | +20.70 runs/100b | High-performing clutch contributor regularized by prior. |
+| **Batter** | **#12** | Namboori Tilak Varma | 86.67 | 787 | +18.79 runs/100b | High-performing clutch contributor regularized by prior. |
+| **Batter** | **#13** | Andre Russell | 85.82 | 255 | +20.14 runs/100b | High-performing clutch contributor regularized by prior. |
+| **Batter** | **#14** | Daryl Mitchell | 85.09 | 269 | +17.99 runs/100b | High-performing clutch contributor regularized by prior. |
+| **Batter** | **#15** | Kamindu Mendis | 84.49 | 246 | +12.68 runs/100b | High-performing clutch contributor regularized by prior. |
 | **Bowler** | **#11** | Kagiso Rabada | 77.67 | 466 | +3.34 runs/24b | Reliable bowling anchor across tournament pressure overs. |
 | **Bowler** | **#12** | Mohammad Nawaz | 77.11 | 375 | +4.27 runs/24b | Reliable bowling anchor across tournament pressure overs. |
 | **Bowler** | **#13** | FazalHaq Farooqi | 75.09 | 344 | +3.12 runs/24b | Reliable bowling anchor across tournament pressure overs. |
